@@ -1,16 +1,14 @@
 # easy_hire
 
-A new Flutter project.
+Project Title: ““Micro Job Finder””
+Product Title: EasyHire
 
-## Getting Started
+Overview: EasyHire is a dual-function job-matching mobile app designed to tackle youth  
+unemployment and economic inequality in Myanmar. It empowers users, especially semi
+educated individuals, university students, and low-income job seekers to act as both job  
+seekers and job creators. By connecting them with real, accessible job opportunities, the  
+app promotes SDG 1: No Poverty. 
 
-This project is a starting point for a Flutter application.
+Folder Structure: 
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
