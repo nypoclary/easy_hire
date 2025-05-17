@@ -1,5 +1,5 @@
 import 'package:easy_hire/features/home/view/home_screen.dart';
-import 'package:easy_hire/features/job_status/job_status_screen.dart';
+import 'package:easy_hire/features/job_status/view/job_status_screen.dart';
 import 'package:easy_hire/features/job_search/view/job_search_screen.dart';
 import 'package:easy_hire/core/widgets/bottom_nav.dart';
 import 'package:go_router/go_router.dart';

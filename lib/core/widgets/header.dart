@@ -1,3 +1,4 @@
+import 'package:easy_hire/core/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_hire/core/widgets/add_bottom_sheet.dart';
 
@@ -9,9 +10,8 @@ class Header extends StatelessWidget {
   void _showAddSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      isScrollControlled: true,
+      barrierColor: Colors.transparent,
       builder: (context) => const AddBottomSheet(),
     );
   }
@@ -28,24 +28,28 @@ class Header extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // 👈 Add Button
+                //  Add Button
                 Align(
                   alignment: Alignment.centerLeft,
                   child: GestureDetector(
                     onTap: () => _showAddSheet(context),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF000F50),
+                        color: AppTheme.primaryNavyBlue,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       width: 45,
                       height: 45,
-                      child: const Icon(Icons.add, color: Colors.white, size: 25),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 25,
+                      ),
                     ),
                   ),
                 ),
 
-                // 📝 Center Title
+                //  Center Title
                 Center(
                   child: Text(
                     title,
@@ -56,12 +60,14 @@ class Header extends StatelessWidget {
                   ),
                 ),
 
-                // 👤 Profile Picture
+                //  Profile Picture
                 const Align(
                   alignment: Alignment.centerRight,
                   child: CircleAvatar(
                     radius: 22,
-                    backgroundImage: AssetImage('assets/images/profile_pic.jpg'),
+                    backgroundImage: AssetImage(
+                      'assets/images/profile_pic.jpg',
+                    ),
                   ),
                 ),
               ],
@@ -69,12 +75,8 @@ class Header extends StatelessWidget {
           ),
         ),
 
-        // 🔽 Divider below header
-        const Divider(
-          height: 2,
-          thickness: 1,
-          color: Color(0xFFE0E0E0),
-        ),
+        //  Divider below header
+        const Divider(height: 2, thickness: 1, color: Color(0xFFE0E0E0)),
       ],
     );
   }
