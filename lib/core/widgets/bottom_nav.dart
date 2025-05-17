@@ -11,7 +11,7 @@ class BottomNav extends StatelessWidget {
     required this.selectedIndex,
   });
 
-  static const tabs = ['/home', '/search', '/status'];
+  static const tabs = ['/home', '/search', '/status', '/settings'];
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +47,10 @@ class BottomNav extends StatelessWidget {
             NavigationDestination(
               icon: Icon(Icons.assignment_outlined),
               label: 'Status',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.settings_outlined),
+              label: 'Settings',
             ),
           ],
         ),
