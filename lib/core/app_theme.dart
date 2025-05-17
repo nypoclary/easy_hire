@@ -12,6 +12,6 @@ class AppTheme {
         color: Colors.black, // set based on your needs
       ),
     ),
-    scaffoldBackgroundColor: Colors.grey[100],
+    //scaffoldBackgroundColor: Colors.grey[100],
   );
 }

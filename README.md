@@ -9,6 +9,6 @@ educated individuals, university students, and low-income job seekers to act as 
 seekers and job creators. By connecting them with real, accessible job opportunities, the  
 app promotes SDG 1: No Poverty. 
 
-Folder Structure: 
+
 
 

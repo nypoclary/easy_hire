@@ -1,15 +1,37 @@
 import 'package:easy_hire/features/home/view/home_screen.dart';
+import 'package:easy_hire/features/job_status/job_status_screen.dart';
+import 'package:easy_hire/features/job_search/view/job_search_screen.dart';
+import 'package:easy_hire/core/widgets/bottom_nav.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
   static final router = GoRouter(
-    initialLocation: '/',
+    initialLocation: '/home',
     //errorBuilder: (context, state) => const NotFoundScreen(),
     routes: [
       GoRoute(
-        path: '/',
+        path: '/home',
         name: 'home',
-        builder: (context, state) => const HomeScreen(),
+          builder: (context, state) => const BottomNav(
+            selectedIndex: 0,
+            child: HomeScreen(),
+          ),
+      ),
+      GoRoute(
+        path: '/search',
+        name: 'jobSearch',
+        builder: (context, state) => const BottomNav(
+          selectedIndex: 1,
+          child: JobSearchScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/status',
+        name: 'jobStatus',
+        builder: (context, state) => const BottomNav(
+          selectedIndex: 2,
+          child: JobStatusScreen(),
+        ),
       ),
     ],
   );
