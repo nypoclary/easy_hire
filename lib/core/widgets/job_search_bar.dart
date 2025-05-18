@@ -10,7 +10,7 @@ class JobSearchBar extends StatelessWidget {
     super.key,
     this.onChanged,
     this.height = 45,
-    this.width = 340,
+    this.width = 350,
   });
 
   @override
