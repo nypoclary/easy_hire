@@ -1,5 +1,6 @@
+import 'package:easy_hire/core/widgets/job_search_bar.dart';
 import 'package:flutter/material.dart';
-import '../../../core/widgets/header.dart';
+import 'package:easy_hire/core/widgets/header.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,8 +16,15 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children:  [
+          children: [
             Header(title: 'Welcome to EasyHire'),
+            SizedBox(height: 24),
+            JobSearchBar(
+              onChanged: (query) {
+                //  Add search/filter logic here
+                print("Search input: $query");
+              },
+            ),
             Expanded(
               child: Center(
                 child: Text(
