@@ -6,7 +6,7 @@ import 'core/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp( MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
