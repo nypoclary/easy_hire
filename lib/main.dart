@@ -2,11 +2,13 @@ import 'package:easy_hire/core/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'core/app_router.dart';
 import 'core/app_theme.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MyApp());
+  runApp(const ProviderScope(
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

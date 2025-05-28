@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:easy_hire/core/app_theme.dart';
+import 'package:go_router/go_router.dart';
 
 class AddBottomSheet extends StatelessWidget {
   const AddBottomSheet({super.key});
@@ -45,7 +46,7 @@ class AddBottomSheet extends StatelessWidget {
             width: 300,
             child: ElevatedButton(
               onPressed: () {
-                // TODO: Add your navigation logic
+                context.go('/job-search');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryNavyBlue, // deep navy blue

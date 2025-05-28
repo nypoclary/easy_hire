@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class JobFilterOptions extends StatelessWidget {
   const JobFilterOptions({super.key});
@@ -22,7 +23,7 @@ class JobFilterOptions extends StatelessWidget {
                 color: const Color(0xFFFABFBC),
                 borderColor: const Color(0xFFA2CEF4),
                 onTap: () {
-                  print('Remote Job selected');
+                  context.go('/job-search/Remote');
                 },
               ),
             ),
@@ -43,7 +44,7 @@ class JobFilterOptions extends StatelessWidget {
                     color: const Color(0xFFE2F8D5),
                     borderColor: const Color(0xFFCBF4A2).withOpacity(0.5),
                     onTap: () {
-                      print('Part Time selected');
+                      context.go('/job-search/Part%20Time');
                     },
                   ),
                 ),
@@ -57,10 +58,11 @@ class JobFilterOptions extends StatelessWidget {
                     color: const Color(0xFFB5E2FA),
                     borderColor: const Color(0xFF7FC3FF).withOpacity(0.5),
                     onTap: () {
-                      print('Full Time selected');
+                      context.go('/job-search/Full%20Time');
                     },
                   ),
                 ),
+
               ],
             ),
           ),

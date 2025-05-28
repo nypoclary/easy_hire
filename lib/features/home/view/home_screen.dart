@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     role: 'Mobile Dev',
                     company: 'Google inc  California, USA',
                     salary: '\$14K',
-                    tags: ['Flutter', 'Remote'],
+                    tags: ['Flutter', 'Full time'],
                     imageAsset: 'assets/images/profile_pic.jpg',
                     onTap: () {
                       debugPrint('🟣 Card tapped!');

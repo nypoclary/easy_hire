@@ -7,11 +7,11 @@ import 'package:go_router/go_router.dart';
 
 class AppRouter {
   static final router = GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/',
     //errorBuilder: (context, state) => const NotFoundScreen(),
     routes: [
       GoRoute(
-        path: '/home',
+        path: '/',
         name: 'home',
           builder: (context, state) => const BottomNav(
             selectedIndex: 0,
@@ -19,15 +19,25 @@ class AppRouter {
           ),
       ),
       GoRoute(
-        path: '/search',
+        path: '/job-search',
         name: 'jobSearch',
         builder: (context, state) => const BottomNav(
           selectedIndex: 1,
-          child: JobSearchScreen(),
+          child: JobSearchScreen(category: null),
         ),
+        routes: [
+          // Make this a sub-route of /job-search
+          GoRoute(
+            path: ':category',
+            builder: (context, state) {
+              final category = state.pathParameters['category']!;
+              return JobSearchScreen(category: category);
+            },
+          ),
+        ],
       ),
       GoRoute(
-        path: '/status',
+        path: '/job-status',
         name: 'jobStatus',
         builder: (context, state) => const BottomNav(
           selectedIndex: 2,
