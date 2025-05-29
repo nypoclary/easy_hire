@@ -4,17 +4,19 @@ import 'package:easy_hire/core/widgets/job_search_bar.dart';
 import 'package:easy_hire/features/home/widgets/location_filter_chip.dart';
 import 'package:easy_hire/core/widgets/job_card.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_hire/features/job_search/provider/search_provider.dart';
 
-class JobSearchScreen extends StatefulWidget {
+class JobSearchScreen extends ConsumerStatefulWidget {
   final String? category;
 
   const JobSearchScreen({super.key, required this.category});
 
   @override
-  State<JobSearchScreen> createState() => _JobSearchScreenState();
+  ConsumerState<JobSearchScreen> createState() => _JobSearchScreenState();
 }
 
-class _JobSearchScreenState extends State<JobSearchScreen> {
+class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
   String selected = 'Yangon';
 
   @override
@@ -40,14 +42,26 @@ class _JobSearchScreenState extends State<JobSearchScreen> {
       },
     ];
 
+//search bar function
+    final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
 
-    final filteredJobs = widget.category != null && widget.category != 'all'
-        ? jobData.where((job) {
+    final filteredJobs = jobData.where((job) {
+      final role = (job['role'] as String).toLowerCase();
+      final company = (job['company'] as String).toLowerCase();
       final tags = (job['tags'] as List).cast<String>();
-      return tags.any((tag) =>
-          tag.toLowerCase().contains(widget.category!.toLowerCase()));
-    }).toList()
-        : jobData;
+
+      final matchesCategory =
+          widget.category != null && widget.category != 'all'
+              ? tags.any((tag) =>
+                  tag.toLowerCase().contains(widget.category!.toLowerCase()))
+              : true;
+
+      final matchesSearch = role.contains(searchQuery) ||
+          company.contains(searchQuery) ||
+          tags.any((tag) => tag.toLowerCase().contains(searchQuery));
+
+      return matchesCategory && matchesSearch;
+    }).toList();
 
     return Scaffold(
       body: SafeArea(
@@ -70,7 +84,7 @@ class _JobSearchScreenState extends State<JobSearchScreen> {
             JobSearchBar(
               onChanged: (query) {
                 //  Add search/filter logic here
-                print("Search input: $query");
+                ref.read(searchQueryProvider.notifier).state = query;
               },
             ),
             SizedBox(height: 20),
