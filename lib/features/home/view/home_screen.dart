@@ -4,19 +4,42 @@ import 'package:easy_hire/features/home/widgets/location_filter_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_hire/core/widgets/header.dart';
 import 'package:easy_hire/core/widgets/job_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_hire/core/provider/location_provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedLocation = ref.watch(locationFilterProvider);
 
-class _HomeScreenState extends State<HomeScreen> {
-  String selected = 'Yangon';
+    // Define job data
+    final jobData = [
+      {
+        'role': 'Product Designer',
+        'company': 'Google inc California',
+        'salary': '\$15K',
+        'location': 'Yangon',
+        'tags': ['Home Service', 'Remote'],
+        'imageAsset': 'assets/images/profile_pic.jpg',
+      },
+      {
+        'role': 'Mobile Dev',
+        'company': 'Google inc California, USA',
+        'salary': '\$14K',
+        'location': 'Mandalay',
+        'tags': ['Flutter', 'Full time'],
+        'imageAsset': 'assets/images/profile_pic.jpg',
+      },
+    ];
 
-  @override
-  Widget build(BuildContext context) {
+    // Filter jobs based on location
+    final filteredJobs = selectedLocation == 'All'
+        ? jobData
+        : jobData.where((job) =>
+    job['location'] == selectedLocation).toList();
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -26,20 +49,12 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 24),
             JobSearchBar(
               onChanged: (query) {
-                //  Add search/filter logic here
                 print("Search input: $query");
               },
             ),
             SizedBox(height: 20),
             LocationFilterChip(
-              selectedLocation: selected,
               locationOptions: ['All', 'Yangon', 'Mandalay', 'Naypyitaw'],
-              onChanged: (value) {
-                setState(() {
-                  selected = value!;
-                  // Then filter your cards here
-                });
-              },
             ),
             SizedBox(height: 20),
             JobFilterOptions(),
@@ -56,30 +71,25 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Expanded(
-              child: ListView(
+              child: filteredJobs.isEmpty
+                  ? Center(child: Text('No jobs found in $selectedLocation'))
+                  : ListView.builder(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  JobCardWidget(
-                    role: 'Product Designer',
-                    company: 'Google inc  California, USA',
-                    salary: '\$15K',
-                    tags: ['Home Service', 'Remote'],
-                    imageAsset: 'assets/images/profile_pic.jpg',
+                itemCount: filteredJobs.length,
+                itemBuilder: (context, index) {
+                  final job = filteredJobs[index];
+                  return JobCardWidget(
+                    role: job['role'] as String,
+                    company: job['company'] as String,
+                    salary: job['salary'] as String,
+                    tags: (job['tags'] as List).cast<String>(),
+                    location: job['location'] as String,
+                    imageAsset: job['imageAsset'] as String,
                     onTap: () {
                       debugPrint('🟣 Card tapped!');
                     },
-                  ),
-                  JobCardWidget(
-                    role: 'Mobile Dev',
-                    company: 'Google inc  California, USA',
-                    salary: '\$14K',
-                    tags: ['Flutter', 'Full time'],
-                    imageAsset: 'assets/images/profile_pic.jpg',
-                    onTap: () {
-                      debugPrint('🟣 Card tapped!');
-                    },
-                  ),
-                ],
+                  );
+                },
               ),
             ),
           ],
