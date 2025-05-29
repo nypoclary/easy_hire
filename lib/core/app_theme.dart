@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static const Color primaryNavyBlue = Color(0xFF000F50);
+  static const Color textBoxBorderColor = Color(0xFF7FC3FF);
 
   static final ThemeData appTheme = ThemeData(
     useMaterial3: true,
@@ -22,6 +23,17 @@ class AppTheme {
         fontWeight: FontWeight.bold,
         fontSize: 24,
         color: Colors.black, // set based on your needs
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: textBoxBorderColor),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: textBoxBorderColor, width: 2),
       ),
     ),
     //scaffoldBackgroundColor: Colors.grey[100],

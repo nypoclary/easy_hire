@@ -1,4 +1,5 @@
 import 'package:easy_hire/features/home/view/home_screen.dart';
+import 'package:easy_hire/features/job_apply/view/job_apply_screen.dart';
 import 'package:easy_hire/features/job_status/view/job_status_screen.dart';
 import 'package:easy_hire/features/job_search/view/job_search_screen.dart';
 import 'package:easy_hire/features/settings/view/settings_screen.dart';
@@ -70,6 +71,10 @@ class AppRouter {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/apply-job',
+        builder: (context, state) => const JobApplyScreen(),
       ),
     ],
   );

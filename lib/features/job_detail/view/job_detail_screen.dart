@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_hire/core/widgets/job_card.dart';
 import 'package:easy_hire/core/widgets/header.dart';
+import 'package:easy_hire/core/app_theme.dart';
 import 'package:go_router/go_router.dart';
 
 class JobDetailScreen extends StatelessWidget {
@@ -34,7 +35,7 @@ class JobDetailScreen extends StatelessWidget {
               title: 'Job Details',
               hasBackButton: true,
               hasAddButton: false,
-              onBackPressed: () => context.pop(), // or context.go('/') if needed
+              onBackPressed: () => context.pop(),
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -108,7 +109,7 @@ class JobDetailScreen extends StatelessWidget {
                       child: Text(
                         responsibilities,
                         style: TextStyle(
-                            height: 1.4), // optional: improves line spacing
+                            height: 1.4),
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -116,13 +117,15 @@ class JobDetailScreen extends StatelessWidget {
                       width: 900,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF000959),
-                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          backgroundColor: AppTheme.primaryNavyBlue,
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          context.push('/apply-job');
+                        },
                         child: const Text(
                           'Apply',
                           style: TextStyle(fontSize: 16, color: Colors.white),
