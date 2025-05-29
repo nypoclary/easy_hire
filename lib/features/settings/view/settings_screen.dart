@@ -1,3 +1,4 @@
+import 'package:easy_hire/features/profile/view/profile.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -57,9 +58,17 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Row(
           children: [
-            const CircleAvatar(
-              radius: 42,
-              backgroundImage: AssetImage('assets/images/profile_pic.jpg'),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                );
+              },
+              child: const CircleAvatar(
+                radius: 42,
+                backgroundImage: AssetImage('assets/images/profile_pic.jpg'),
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -132,7 +141,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _usernameController = TextEditingController(text: 'Your Name');
-  final _emailController = TextEditingController(text: 'Your Email');
+  final _emailController = TextEditingController(text: 'your@email.com');
+  final _aboutMeController =
+      TextEditingController(text: 'A short bio about yourself');
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -143,6 +154,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void dispose() {
     _usernameController.dispose();
     _emailController.dispose();
+    _aboutMeController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -160,6 +172,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
+      isDense: true,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -189,16 +202,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 radius: 80,
                 backgroundImage: AssetImage(profileImage),
               ),
-              const SizedBox(height: 50),
-
+              const SizedBox(height: 40),
               TextFormField(
                 controller: _usernameController,
                 decoration: _inputDecoration('Username'),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Enter username' : null,
               ),
-              const SizedBox(height: 24),
-
+              const SizedBox(height: 35),
               TextFormField(
                 controller: _emailController,
                 decoration: _inputDecoration('Email'),
@@ -206,16 +217,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ? 'Enter valid email'
                     : null,
               ),
-              const SizedBox(height: 24),
-
+              const SizedBox(height: 35),
+              TextFormField(
+                controller: _aboutMeController,
+                maxLines: 4,
+                decoration: _inputDecoration('About Me'),
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter something about yourself'
+                    : null,
+              ),
+              const SizedBox(height: 35),
               TextFormField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 decoration: _inputDecoration('New Password').copyWith(
                   suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword
-                        ? Icons.visibility_off
-                        : Icons.visibility),
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
                     onPressed: () {
                       setState(() {
                         _obscurePassword = !_obscurePassword;
@@ -230,16 +251,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
-
+              const SizedBox(height: 35),
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: _obscureConfirmPassword,
                 decoration: _inputDecoration('Confirm Password').copyWith(
                   suffixIcon: IconButton(
-                    icon: Icon(_obscureConfirmPassword
-                        ? Icons.visibility_off
-                        : Icons.visibility),
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
                     onPressed: () {
                       setState(() {
                         _obscureConfirmPassword = !_obscureConfirmPassword;
@@ -255,23 +277,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 32),
-
+              const SizedBox(height: 35),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _submitForm,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF000F50), // Navy Blue
+                    backgroundColor: const Color(0xFF000F50),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Save Changes',
-                      style: TextStyle(fontSize: 16)),
+                  child: const Text(
+                    'Save Changes',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
