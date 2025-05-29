@@ -6,6 +6,7 @@ import 'package:easy_hire/core/widgets/job_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_hire/features/job_search/provider/search_provider.dart';
+import 'package:easy_hire/core/provider/location_provider.dart';
 
 class JobSearchScreen extends ConsumerStatefulWidget {
   final String? category;
@@ -17,30 +18,32 @@ class JobSearchScreen extends ConsumerStatefulWidget {
 }
 
 class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
-  String selected = 'Yangon';
-
   @override
   Widget build(BuildContext context) {
     final jobData = [
       {
         'role': 'Product Designer',
-        'company': 'Google inc California, USA',
+        'company': 'Google inc California',
         'salary': '\$15K',
+        'location': 'Yangon',
         'tags': ['Home Service', 'Remote'],
       },
       {
         'role': 'Mobile Dev',
-        'company': 'Google inc California, USA',
+        'company': 'Google inc California',
         'salary': '\$14K',
+        'location': 'Mandalay',
         'tags': ['Flutter', 'Full time'],
       },
       {
         'role': 'Sales and business',
-        'company': 'Google inc California, USA',
+        'company': 'Google inc California',
         'salary': '\$14K',
+        'location': 'Naypyitaw',
         'tags': ['Real Estate', 'Part time'],
       },
     ];
+    final selectedLocation = ref.watch(locationFilterProvider);
 
 //search bar function
     final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
@@ -60,7 +63,13 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
           company.contains(searchQuery) ||
           tags.any((tag) => tag.toLowerCase().contains(searchQuery));
 
-      return matchesCategory && matchesSearch;
+      final matchesLocation = selectedLocation == 'All'
+          ? true
+          : (job['location'] as String)
+              .toLowerCase().trim()
+              .contains(selectedLocation.toLowerCase());
+
+      return matchesCategory && matchesSearch && matchesLocation;
     }).toList();
 
     return Scaffold(
@@ -89,14 +98,7 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
             ),
             SizedBox(height: 20),
             LocationFilterChip(
-              selectedLocation: selected,
               locationOptions: ['All', 'Yangon', 'Mandalay', 'Naypyitaw'],
-              onChanged: (value) {
-                setState(() {
-                  selected = value!;
-                  // Then filter your cards here
-                });
-              },
             ),
             SizedBox(height: 8),
             const Padding(
@@ -110,63 +112,6 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
                 ),
               ),
             ),
-            // Expanded(
-            //   child: ListView(
-            //     padding: EdgeInsets.symmetric(horizontal: 16),
-            //     children: [
-            //       JobCardWidget(
-            //         role: 'Product Designer',
-            //         company: 'Google inc  California, USA',
-            //         salary: '\$15K',
-            //         tags: ['Home Service', 'Remote'],
-            //         imageAsset: 'assets/images/profile_pic.jpg',
-            //         onTap: () {
-            //           debugPrint('🟣 Card tapped!');
-            //         },
-            //       ),
-            //       JobCardWidget(
-            //         role: 'Mobile Dev',
-            //         company: 'Google inc  California, USA',
-            //         salary: '\$14K',
-            //         tags: ['Flutter', 'Full time'],
-            //         imageAsset: 'assets/images/profile_pic.jpg',
-            //         onTap: () {
-            //           debugPrint('🟣 Card tapped!');
-            //         },
-            //       ),
-            //       JobCardWidget(
-            //         role: 'Product Designer',
-            //         company: 'Google inc  California, USA',
-            //         salary: '\$15K',
-            //         tags: ['Home Service', 'Remote'],
-            //         imageAsset: 'assets/images/profile_pic.jpg',
-            //         onTap: () {
-            //           debugPrint('🟣 Card tapped!');
-            //         },
-            //       ),
-            //       JobCardWidget(
-            //         role: 'Sales and business',
-            //         company: 'Google inc  California, USA',
-            //         salary: '\$14K',
-            //         tags: ['Real Estate', 'Part time'],
-            //         imageAsset: 'assets/images/profile_pic.jpg',
-            //         onTap: () {
-            //           debugPrint('🟣 Card tapped!');
-            //         },
-            //       ),
-            //       JobCardWidget(
-            //         role: 'Sales and business',
-            //         company: 'Google inc  California, USA',
-            //         salary: '\$14K',
-            //         tags: ['Real Estate', 'Part time'],
-            //         imageAsset: 'assets/images/profile_pic.jpg',
-            //         onTap: () {
-            //           debugPrint('🟣 Card tapped!');
-            //         },
-            //       ),
-            //     ],
-            //   ),
-            // ),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -177,6 +122,7 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
                     role: job['role'] as String,
                     company: job['company'] as String,
                     salary: job['salary'] as String,
+                    location: job['location'] as String,
                     tags: (job['tags'] as List).cast<String>(),
                     imageAsset: 'assets/images/profile_pic.jpg',
                     onTap: () => debugPrint('🟣 Card tapped!'),

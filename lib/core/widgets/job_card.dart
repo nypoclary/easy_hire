@@ -6,9 +6,11 @@ class JobCardWidget extends StatefulWidget {
   final String role;
   final String company;
   final String salary;
+  final String location;
   final List<String> tags;
   final String imageAsset;
   final VoidCallback onTap;
+
 
 
   const JobCardWidget({
@@ -19,6 +21,7 @@ class JobCardWidget extends StatefulWidget {
     required this.tags,
     required this.imageAsset,
     required this.onTap,
+    required this.location,
   
   });
 
@@ -109,7 +112,7 @@ class _JobCardWidgetState extends State<JobCardWidget> {
                                   color: Color(0xFF2A1258))),
                           const SizedBox(height: 4),
                           Text(
-                            widget.company,
+                            '${widget.company}, ${widget.location}',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey.shade700,

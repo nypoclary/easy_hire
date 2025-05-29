@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_hire/core/provider/location_provider.dart';
 
-class LocationFilterChip extends StatelessWidget {
-  final String selectedLocation;
+class LocationFilterChip extends ConsumerWidget {
   final List<String> locationOptions;
-  final ValueChanged<String?> onChanged;
 
   const LocationFilterChip({
     super.key,
-    required this.selectedLocation,
     required this.locationOptions,
-    required this.onChanged,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedLocation = ref.watch(locationFilterProvider);
+
     return Align(
       alignment: Alignment.topRight,
       child: Padding(
@@ -38,7 +38,11 @@ class LocationFilterChip extends StatelessWidget {
                   child: Text(location, style: const TextStyle(fontSize: 14)),
                 );
               }).toList(),
-              onChanged: onChanged,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(locationFilterProvider.notifier).state = value;
+                }
+              },
               style: const TextStyle(color: Colors.black),
             ),
           ),
