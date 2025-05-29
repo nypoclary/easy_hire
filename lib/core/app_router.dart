@@ -4,6 +4,7 @@ import 'package:easy_hire/features/job_search/view/job_search_screen.dart';
 import 'package:easy_hire/features/settings/view/settings_screen.dart';
 import 'package:easy_hire/core/widgets/bottom_nav.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_hire/features/job_detail/view/job_detail_screen.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -50,6 +51,21 @@ class AppRouter {
           selectedIndex: 3,
           child: SettingsScreen(),
         ),
+      ),
+
+      GoRoute(
+        path: '/job-detail',
+        builder: (context, state) {
+          return const JobDetailScreen(
+            role: 'Default Role',
+            company: 'Default Company',
+            salary: '\$0',
+            tags: [],
+            requirements: '',
+            responsibilities: '',
+            jobSummary: {},
+          );
+        },
       ),
     ],
   );
