@@ -1,4 +1,4 @@
-import 'package:easy_hire/features/profile/view/profile.dart';
+import 'package:easy_hire/features/profile/view/profile_screen.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {

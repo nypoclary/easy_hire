@@ -1,6 +1,7 @@
 import 'package:easy_hire/core/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_hire/core/widgets/add_bottom_sheet.dart';
+import 'package:go_router/go_router.dart';
 
 class Header extends StatelessWidget {
   final String title;
@@ -75,12 +76,15 @@ class Header extends StatelessWidget {
                 ),
 
                 //  Profile Picture
-                const Align(
+                Align(
                   alignment: Alignment.centerRight,
-                  child: CircleAvatar(
-                    radius: 22,
-                    backgroundImage: AssetImage(
-                      'assets/images/profile_pic.jpg',
+                  child: GestureDetector(
+                    onTap: () {
+                      context.go('/profile');
+                    },
+                    child: const CircleAvatar(
+                      radius: 22,
+                      backgroundImage: AssetImage('assets/images/profile_pic.jpg'),
                     ),
                   ),
                 ),
