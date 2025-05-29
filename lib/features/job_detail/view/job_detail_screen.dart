@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_hire/core/widgets/job_card.dart';
+import 'package:easy_hire/core/widgets/header.dart';
+import 'package:go_router/go_router.dart';
 
 class JobDetailScreen extends StatelessWidget {
   final String role;
@@ -28,33 +30,11 @@ class JobDetailScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: SizedBox(
-                height: 45,
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    const Spacer(),
-                    const Text(
-                      'Job Details',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const Spacer(),
-                    const CircleAvatar(
-                      radius: 20,
-                      backgroundImage:
-                          AssetImage('assets/images/profile_pic.jpg'),
-                    ),
-                  ],
-                ),
-              ),
+            Header(
+              title: 'Job Details',
+              hasBackButton: true,
+              hasAddButton: false,
+              onBackPressed: () => context.pop(), // or context.go('/') if needed
             ),
             Expanded(
               child: SingleChildScrollView(

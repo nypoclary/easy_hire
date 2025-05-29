@@ -76,11 +76,11 @@ class SettingsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text(
-                    'Nay Zin Ou',
+                    'Nay Koe Ou',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                   SizedBox(height: 6),
-                  Text('nayzinou@gmail.com',
+                  Text('naykoeou@gmail.com',
                       style: TextStyle(color: Colors.black54)),
                 ],
               ),

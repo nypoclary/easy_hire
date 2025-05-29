@@ -6,6 +6,7 @@ import 'package:easy_hire/core/widgets/header.dart';
 import 'package:easy_hire/core/widgets/job_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_hire/core/provider/location_provider.dart';
+import 'package:easy_hire/core/provider/search_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -13,6 +14,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedLocation = ref.watch(locationFilterProvider);
+    final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
 
     // Define job data
     final jobData = [
@@ -34,22 +36,38 @@ class HomeScreen extends ConsumerWidget {
       },
     ];
 
-    // Filter jobs based on location
-    final filteredJobs = selectedLocation == 'All'
-        ? jobData
-        : jobData.where((job) =>
-    job['location'] == selectedLocation).toList();
+    // Filter jobs based on location and through search bar
+    final filteredJobs = jobData.where((job) {
+      final role = (job['role'] as String).toLowerCase();
+      final company = (job['company'] as String).toLowerCase();
+      final tags = (job['tags'] as List).cast<String>();
+      final location = (job['location'] as String).toLowerCase();
+
+      final matchesLocation = selectedLocation == 'All'
+          ? true
+          : location == selectedLocation.toLowerCase();
+
+      final matchesSearch = role.contains(searchQuery) ||
+          company.contains(searchQuery) ||
+          tags.any((tag) => tag.toLowerCase().contains(searchQuery));
+
+      return matchesLocation && matchesSearch;
+    }).toList();
 
     return Scaffold(
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Header(title: 'Welcome to EasyHire'),
+            Header(
+              title: 'Welcome to EasyHire',
+              hasAddButton: true,
+              hasBackButton: false,
+            ),
             SizedBox(height: 24),
             JobSearchBar(
               onChanged: (query) {
-                print("Search input: $query");
+                ref.read(searchQueryProvider.notifier).state = query;
               },
             ),
             SizedBox(height: 20),
@@ -74,23 +92,23 @@ class HomeScreen extends ConsumerWidget {
               child: filteredJobs.isEmpty
                   ? Center(child: Text('No jobs found in $selectedLocation'))
                   : ListView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                itemCount: filteredJobs.length,
-                itemBuilder: (context, index) {
-                  final job = filteredJobs[index];
-                  return JobCardWidget(
-                    role: job['role'] as String,
-                    company: job['company'] as String,
-                    salary: job['salary'] as String,
-                    tags: (job['tags'] as List).cast<String>(),
-                    location: job['location'] as String,
-                    imageAsset: job['imageAsset'] as String,
-                    onTap: () {
-                      debugPrint('🟣 Card tapped!');
-                    },
-                  );
-                },
-              ),
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filteredJobs.length,
+                      itemBuilder: (context, index) {
+                        final job = filteredJobs[index];
+                        return JobCardWidget(
+                          role: job['role'] as String,
+                          company: job['company'] as String,
+                          salary: job['salary'] as String,
+                          tags: (job['tags'] as List).cast<String>(),
+                          location: job['location'] as String,
+                          imageAsset: job['imageAsset'] as String,
+                          onTap: () {
+                            debugPrint('🟣 Card tapped!');
+                          },
+                        );
+                      },
+                    ),
             ),
           ],
         ),

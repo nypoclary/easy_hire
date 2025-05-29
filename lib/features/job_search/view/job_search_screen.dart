@@ -5,7 +5,7 @@ import 'package:easy_hire/features/home/widgets/location_filter_chip.dart';
 import 'package:easy_hire/core/widgets/job_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easy_hire/features/job_search/provider/search_provider.dart';
+import 'package:easy_hire/core/provider/search_provider.dart';
 import 'package:easy_hire/core/provider/location_provider.dart';
 import 'package:easy_hire/features/job_detail/view/job_detail_screen.dart';
 
@@ -114,18 +114,11 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.category != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0, left: 8.0),
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => context.go('/'),
-                ),
-              ),
             Header(
-              title: widget.category != null
-                  ? '${widget.category} Jobs'
-                  : 'All Jobs',
+              title: widget.category != null ? '${widget.category} Jobs' : 'All Jobs',
+              hasBackButton: widget.category != null,
+              hasAddButton: widget.category == null, // show add button only in general mode
+              onBackPressed: () => context.go('/'),
             ),
             const SizedBox(height: 24),
             JobSearchBar(

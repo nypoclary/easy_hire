@@ -4,8 +4,17 @@ import 'package:easy_hire/core/widgets/add_bottom_sheet.dart';
 
 class Header extends StatelessWidget {
   final String title;
+  final bool hasAddButton;
+  final bool hasBackButton;
+  final VoidCallback? onBackPressed;
 
-  const Header({super.key, required this.title});
+  const Header({
+    super.key,
+    required this.title,
+    this.hasAddButton = true,
+    this.hasBackButton = false,
+    this.onBackPressed,
+  });
 
   void _showAddSheet(BuildContext context) {
     showModalBottomSheet(
@@ -28,25 +37,30 @@ class Header extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                //  Add Button
+                // Add or Back Button
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: GestureDetector(
-                    onTap: () => _showAddSheet(context),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryNavyBlue,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      width: 45,
-                      height: 45,
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 25,
-                      ),
-                    ),
-                  ),
+                  child: hasBackButton
+                      ? IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: onBackPressed,
+                        )
+                      : GestureDetector(
+                          onTap: () => _showAddSheet(context),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryNavyBlue,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            width: 45,
+                            height: 45,
+                            child: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 25,
+                            ),
+                          ),
+                        ),
                 ),
 
                 //  Center Title
