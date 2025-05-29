@@ -7,6 +7,26 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_hire/features/job_search/provider/search_provider.dart';
 import 'package:easy_hire/core/provider/location_provider.dart';
+import 'package:easy_hire/features/job_detail/view/job_detail_screen.dart';
+
+// Helper to extract category from tags
+String extractJobCategory(List<String>? tags) {
+  if (tags == null || tags.isEmpty) return 'Unknown';
+  if (tags.any((tag) => tag.toLowerCase().contains('remote'))) return 'Remote';
+  if (tags.any((tag) => tag.toLowerCase().contains('full'))) return 'Full-time';
+  if (tags.any((tag) => tag.toLowerCase().contains('part'))) return 'Part-time';
+  return 'Freelance';
+}
+
+// Helper to convert 15K → 150000Ks
+String convertToKs(String salary) {
+  final match = RegExp(r'\$(\d+)K').firstMatch(salary);
+  if (match != null) {
+    final value = int.parse(match.group(1)!);
+    return '${value * 1000}Ks';
+  }
+  return salary;
+}
 
 class JobSearchScreen extends ConsumerStatefulWidget {
   final String? category;
@@ -27,6 +47,12 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
         'salary': '\$15K',
         'location': 'Yangon',
         'tags': ['Home Service', 'Remote'],
+        'workingDays': 'Mon–Sat',
+        'education': 'Grade 10th',
+        'workingHours': '4–10pm',
+        'requirements': 'Strong UX skills and design system experience...',
+        'responsibilities':
+            '• Conduct user research...\n• Create flows...\n• Collaborate with product team...',
       },
       {
         'role': 'Mobile Dev',
@@ -34,6 +60,11 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
         'salary': '\$14K',
         'location': 'Mandalay',
         'tags': ['Flutter', 'Full time'],
+        'workingDays': 'Mon–Fri',
+        'education': 'Bachelor’s Degree',
+        'workingHours': '9am–5pm',
+        'requirements': 'Flutter knowledge and clean architecture.',
+        'responsibilities': '• Build apps\n• Fix bugs\n• Work with backend...',
       },
       {
         'role': 'Sales and business',
@@ -41,11 +72,16 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
         'salary': '\$14K',
         'location': 'Naypyitaw',
         'tags': ['Real Estate', 'Part time'],
+        'workingDays': 'Tue–Sun',
+        'education': 'Any Degree',
+        'workingHours': '10am–4pm',
+        'requirements': 'Good communication skills.',
+        'responsibilities':
+            '• Meet clients\n• Close deals\n• Maintain records...',
       },
     ];
-    final selectedLocation = ref.watch(locationFilterProvider);
 
-//search bar function
+    final selectedLocation = ref.watch(locationFilterProvider);
     final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
 
     final filteredJobs = jobData.where((job) {
@@ -66,7 +102,8 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
       final matchesLocation = selectedLocation == 'All'
           ? true
           : (job['location'] as String)
-              .toLowerCase().trim()
+              .toLowerCase()
+              .trim()
               .contains(selectedLocation.toLowerCase());
 
       return matchesCategory && matchesSearch && matchesLocation;
@@ -86,21 +123,21 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
                 ),
               ),
             Header(
-                title: widget.category != null
-                    ? '${widget.category} Jobs'
-                    : 'All Jobs'),
-            SizedBox(height: 24),
+              title: widget.category != null
+                  ? '${widget.category} Jobs'
+                  : 'All Jobs',
+            ),
+            const SizedBox(height: 24),
             JobSearchBar(
               onChanged: (query) {
-                //  Add search/filter logic here
                 ref.read(searchQueryProvider.notifier).state = query;
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             LocationFilterChip(
               locationOptions: ['All', 'Yangon', 'Mandalay', 'Naypyitaw'],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
@@ -118,14 +155,37 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
                 itemCount: filteredJobs.length,
                 itemBuilder: (context, index) {
                   final job = filteredJobs[index];
+                  final tags = (job['tags'] as List).cast<String>();
                   return JobCardWidget(
                     role: job['role'] as String,
                     company: job['company'] as String,
                     salary: job['salary'] as String,
                     location: job['location'] as String,
-                    tags: (job['tags'] as List).cast<String>(),
+                    tags: tags,
                     imageAsset: 'assets/images/profile_pic.jpg',
-                    onTap: () => debugPrint('🟣 Card tapped!'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => JobDetailScreen(
+                            role: job['role'] as String,
+                            company: job['company'] as String,
+                            salary: job['salary'] as String,
+                            tags: tags,
+                            requirements: job['requirements'] as String,
+                            responsibilities: job['responsibilities'] as String,
+                            jobSummary: {
+                              'Working days': job['workingDays'] as String,
+                              'Education': job['education'] as String,
+                              'Category': extractJobCategory(tags),
+                              'Location': job['location'] as String,
+                              'Salary': convertToKs(job['salary'] as String),
+                              'Working hours': job['workingHours'] as String,
+                            },
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
