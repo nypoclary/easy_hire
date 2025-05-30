@@ -1,12 +1,13 @@
+import 'package:easy_hire/core/provider/google_auth_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       body: SafeArea(
@@ -104,8 +105,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    // Navigate to home or trigger sign-in
-                    context.go('/'); // Update route as needed
+                    ref.read(googleAuthProvider.notifier).signIn();
                   },
                 ),
               ),

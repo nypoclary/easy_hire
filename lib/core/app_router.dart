@@ -1,3 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:easy_hire/core/provider/google_auth_provider.dart';
 import 'package:easy_hire/features/home/view/home_screen.dart';
 import 'package:easy_hire/features/job_apply/view/job_apply_screen.dart';
 import 'package:easy_hire/features/job_status/view/job_status_screen.dart';
@@ -8,14 +12,24 @@ import 'package:easy_hire/features/job_detail/view/job_detail_screen.dart';
 import 'package:easy_hire/features/profile/view/profile_screen.dart';
 import 'package:easy_hire/features/Log_in/login.dart';
 
-import 'package:go_router/go_router.dart';
-class AppRouter {
-  static final router = GoRouter(
-    initialLocation: '/login', // 👈 Start app at splash/login screen
+/// ✅ Create a GoRouter provider
+final goRouterProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(googleAuthProvider);
+
+  return GoRouter(
+    initialLocation: '/',
+    redirect: (context, state) {
+      final isLoggedIn = authState.value != null;
+      final isLoggingIn = state.matchedLocation == '/login';
+
+      if (!isLoggedIn && !isLoggingIn) return '/login';
+      if (isLoggedIn && isLoggingIn) return '/';
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/login',
-        builder: (context, state) => const LoginScreen(), // 👈 Your splash screen widget
+        builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
         path: '/',
@@ -33,7 +47,6 @@ class AppRouter {
           child: JobSearchScreen(category: null),
         ),
         routes: [
-          // Make this a sub-route of /job-search
           GoRoute(
             path: ':category',
             builder: (context, state) {
@@ -51,7 +64,8 @@ class AppRouter {
           child: JobStatusScreen(),
         ),
       ),
-      GoRoute(path: '/settings',
+      GoRoute(
+        path: '/settings',
         name: 'settings',
         builder: (context, state) => const BottomNav(
           selectedIndex: 3,
@@ -60,17 +74,15 @@ class AppRouter {
       ),
       GoRoute(
         path: '/job-detail',
-        builder: (context, state) {
-          return const JobDetailScreen(
-            role: 'Default Role',
-            company: 'Default Company',
-            salary: '\$0',
-            tags: [],
-            requirements: '',
-            responsibilities: '',
-            jobSummary: {},
-          );
-        },
+        builder: (context, state) => const JobDetailScreen(
+          role: 'Default Role',
+          company: 'Default Company',
+          salary: '\$0',
+          tags: [],
+          requirements: '',
+          responsibilities: '',
+          jobSummary: {},
+        ),
       ),
       GoRoute(
         path: '/profile',
@@ -82,4 +94,4 @@ class AppRouter {
       ),
     ],
   );
-}
+});

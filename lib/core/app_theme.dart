@@ -5,7 +5,7 @@ class AppTheme {
   static const Color textBoxBorderColor = Color(0xFF7FC3FF);
 
   static final ThemeData appTheme = ThemeData(
-    useMaterial3: true,
+    useMaterial3: false,
     colorScheme: ColorScheme.fromSeed(
       seedColor: primaryNavyBlue,
       primary: primaryNavyBlue,
