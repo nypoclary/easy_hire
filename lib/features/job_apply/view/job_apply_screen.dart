@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:easy_hire/core/app_theme.dart';
 
 class JobApplyScreen extends StatefulWidget {
   const JobApplyScreen({super.key});
@@ -42,7 +41,8 @@ class _JobApplyScreenState extends State<JobApplyScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24), // ✅ only vertical padding
+          padding: const EdgeInsets.symmetric(
+              horizontal: 24), // ✅ only vertical padding
           child: Form(
             key: _formKey,
             child: ListView(
@@ -65,11 +65,11 @@ class _JobApplyScreenState extends State<JobApplyScreen> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller, {
-        required String label,
-        int maxLines = 1,
-        EdgeInsetsGeometry padding = const EdgeInsets.symmetric(vertical: 8),
-      }) {
+    TextEditingController controller, {
+    required String label,
+    int maxLines = 1,
+    EdgeInsetsGeometry padding = const EdgeInsets.symmetric(vertical: 8),
+  }) {
     return Padding(
       padding: padding,
       child: Column(
@@ -91,8 +91,6 @@ class _JobApplyScreenState extends State<JobApplyScreen> {
       ),
     );
   }
-
-
 
   Widget _buildUploadPdfSection() {
     return Column(
@@ -131,7 +129,7 @@ class _JobApplyScreenState extends State<JobApplyScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF001064),
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         onPressed: () {
           // TODO: Handle navigation or validation

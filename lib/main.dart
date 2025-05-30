@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'core/app_router.dart';
 import 'core/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -18,8 +20,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.appTheme,
-      routerConfig: AppRouter.router,
+      theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),
+      routerConfig: AppRouter.router, 
     );
   }
 }

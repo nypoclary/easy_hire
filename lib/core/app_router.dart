@@ -6,20 +6,24 @@ import 'package:easy_hire/features/settings/view/settings_screen.dart';
 import 'package:easy_hire/core/widgets/bottom_nav.dart';
 import 'package:easy_hire/features/job_detail/view/job_detail_screen.dart';
 import 'package:easy_hire/features/profile/view/profile_screen.dart';
+import 'package:easy_hire/features/Log_in/login.dart';
 
 import 'package:go_router/go_router.dart';
 class AppRouter {
   static final router = GoRouter(
-    initialLocation: '/',
-    //errorBuilder: (context, state) => const NotFoundScreen(),
+    initialLocation: '/login', // 👈 Start app at splash/login screen
     routes: [
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(), // 👈 Your splash screen widget
+      ),
       GoRoute(
         path: '/',
         name: 'home',
-          builder: (context, state) => const BottomNav(
-            selectedIndex: 0,
-            child: HomeScreen(),
-          ),
+        builder: (context, state) => const BottomNav(
+          selectedIndex: 0,
+          child: HomeScreen(),
+        ),
       ),
       GoRoute(
         path: '/job-search',
