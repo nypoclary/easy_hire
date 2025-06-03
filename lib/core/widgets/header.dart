@@ -69,7 +69,7 @@ class Header extends StatelessWidget {
                   child: Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 17,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -84,7 +84,8 @@ class Header extends StatelessWidget {
                     },
                     child: const CircleAvatar(
                       radius: 22,
-                      backgroundImage: AssetImage('assets/images/profile_pic.jpg'),
+                      backgroundImage:
+                          AssetImage('assets/images/profile_pic.jpg'),
                     ),
                   ),
                 ),

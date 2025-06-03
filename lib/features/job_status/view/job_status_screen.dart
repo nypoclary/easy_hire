@@ -1,6 +1,7 @@
 import 'package:easy_hire/core/widgets/header.dart';
 import 'package:easy_hire/core/widgets/job_search_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_hire/core/widgets/delete_box.dart';
 
 enum JobStatus { accepted, pending, rejected }
 
@@ -15,14 +16,17 @@ class _JobStatusScreenState extends State<JobStatusScreen> {
   bool isPressed = false;
   bool isProfilePressed = false;
 
-  // For card taps
-  void handleTapDown(TapDownDetails details) => setState(() => isPressed = true);
+  // Card press effects
+  void handleTapDown(TapDownDetails details) =>
+      setState(() => isPressed = true);
   void handleTapUp(TapUpDetails details) => setState(() => isPressed = false);
   void _handleTapCancel() => setState(() => isPressed = false);
 
-// For profile image taps
-  void handleProfileTapDown(TapDownDetails details) => setState(() => isProfilePressed = true);
-  void handleProfileTapUp(TapUpDetails details) => setState(() => isProfilePressed = false);
+  // Profile image press effects
+  void handleProfileTapDown(TapDownDetails details) =>
+      setState(() => isProfilePressed = true);
+  void handleProfileTapUp(TapUpDetails details) =>
+      setState(() => isProfilePressed = false);
   void _handleProfileTapCancel() => setState(() => isProfilePressed = false);
 
   Color getBorderColor(JobStatus status) {
@@ -79,8 +83,8 @@ class _JobStatusScreenState extends State<JobStatusScreen> {
   }) {
     return GestureDetector(
       onTap: () => debugPrint('Card tapped'),
-       onTapDown: handleTapDown,
-       onTapUp: handleTapUp,
+      onTapDown: handleTapDown,
+      onTapUp: handleTapUp,
       onTapCancel: _handleTapCancel,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
@@ -98,148 +102,167 @@ class _JobStatusScreenState extends State<JobStatusScreen> {
             ),
           ],
         ),
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Top row: Profile + Role + Status
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => debugPrint('✅ Profile tapped'),
-                      onTapDown: handleProfileTapDown,
-                      onTapUp: handleProfileTapUp,
-                      onTapCancel: _handleProfileTapCancel,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 100),
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(
-                                isProfilePressed ? 0.2 : 0.05,
-                              ),
-                              offset: Offset(0, isProfilePressed ? 6 : 2),
-                              blurRadius: isProfilePressed ? 10 : 4,
-                            ),
-                          ],
+                // Profile image
+                GestureDetector(
+                  onTap: () => debugPrint('✅ Profile tapped'),
+                  onTapDown: handleProfileTapDown,
+                  onTapUp: handleProfileTapUp,
+                  onTapCancel: _handleProfileTapCancel,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 100),
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black
+                              .withOpacity(isProfilePressed ? 0.2 : 0.05),
+                          offset: Offset(0, isProfilePressed ? 6 : 2),
+                          blurRadius: isProfilePressed ? 10 : 4,
                         ),
-                        child: ClipOval(
-                          child: Image.asset(imageAsset, fit: BoxFit.cover),
-                        ),
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            role,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Color(0xFF2A1258),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            company,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
+                    child: ClipOval(
+                      child: Image.asset(imageAsset, fit: BoxFit.cover),
                     ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-                RichText(
-                  text: TextSpan(
-                    text: salary,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF9333EA),
-                    ),
-                    children: const [
-                      TextSpan(
-                        text: '/Mo',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.grey,
+                const SizedBox(width: 12),
+
+                // Title + Status
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          role,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF2A1258),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: getStatusBgColor(status),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              getStatusText(status),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: getStatusTextColor(status),
+                              ),
+                            ),
+                            if (status == JobStatus.rejected) ...[
+                              const SizedBox(width: 6),
+                              GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => DeleteConfirmationDialog(
+                                      onConfirm: () {
+                                        // delete logic here
+                                        Navigator.pop(context);
+                                      },
+                                      onCancel: () => Navigator.pop(context),
+                                    ),
+                                  );
+                                },
+                                child: const Icon(
+                                  Icons.delete,
+                                  size: 16,
+                                  color: Color.fromARGB(255, 245, 7, 7),
+                                ),
+                              )
+                            ]
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  children:
-                      tags.map((tag) {
-                        final isRemote = tag.toLowerCase() == 'remote';
-                        final isService = tag.toLowerCase().contains('service');
-                        return Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 10),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  isRemote
-                                      ? const Color(0xFFFFE4D6)
-                                      : (isService
-                                          ? const Color(0xFFEFEBFF)
-                                          : Colors.grey.shade200),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              tag,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                                color:
-                                    isRemote
-                                        ? const Color(0xFFDE6E35)
-                                        : Colors.black,
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                ),
               ],
             ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Container(
-                margin: const EdgeInsets.only(top: 8, right: 8),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: getStatusBgColor(status),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  getStatusText(status),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: getStatusTextColor(status),
-                  ),
-                ),
+
+            const SizedBox(height: 4),
+            Text(
+              company,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade700,
               ),
+            ),
+
+            const SizedBox(height: 20),
+            RichText(
+              text: TextSpan(
+                text: salary,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF9333EA),
+                ),
+                children: const [
+                  TextSpan(
+                    text: '/Mo',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            Row(
+              children: tags.map((tag) {
+                final isRemote = tag.toLowerCase() == 'remote';
+                final isService = tag.toLowerCase().contains('service');
+                return Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isRemote
+                          ? const Color(0xFFFFE4D6)
+                          : (isService
+                              ? const Color(0xFFEFEBFF)
+                              : Colors.grey.shade200),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      tag,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        color:
+                            isRemote ? const Color(0xFFDE6E35) : Colors.black,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -253,22 +276,21 @@ class _JobStatusScreenState extends State<JobStatusScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Header(title: 'Applied Job Status'),
+            const Header(title: 'Applied Job Status'),
             Expanded(
               child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   JobSearchBar(
                     onChanged: (query) {
-                      //  Add search/filter logic here
-                      print("Search input: $query");
+                      debugPrint("Search input: $query");
                     },
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   buildJobCard(
                     role: 'Product Designer',
-                    company: 'Google inc  California, USA',
+                    company: 'Google inc California, USA',
                     salary: '\$15K',
                     tags: ['Home Service', 'Remote'],
                     imageAsset: 'assets/images/profile_pic.jpg',
@@ -276,27 +298,19 @@ class _JobStatusScreenState extends State<JobStatusScreen> {
                   ),
                   buildJobCard(
                     role: 'Mobile Dev',
-                    company: 'Apple  California, USA',
+                    company: 'Apple California, USA',
                     salary: '\$14K',
                     tags: ['Flutter', 'Remote'],
                     imageAsset: 'assets/images/profile_pic.jpg',
                     status: JobStatus.pending,
                   ),
                   buildJobCard(
-                    role: 'Product Designer',
-                    company: 'Google inc  California, USA',
-                    salary: '\$15K',
-                    tags: ['Home Service', 'Remote'],
+                    role: 'Full-stack Developer',
+                    company: 'Unknown Corp, USA',
+                    salary: '\$13K',
+                    tags: ['Admin', 'Remote'],
                     imageAsset: 'assets/images/profile_pic.jpg',
-                    status: JobStatus.accepted,
-                  ),
-                  buildJobCard(
-                    role: 'Mobile Dev',
-                    company: 'Apple  California, USA',
-                    salary: '\$14K',
-                    tags: ['Flutter', 'Remote'],
-                    imageAsset: 'assets/images/profile_pic.jpg',
-                    status: JobStatus.pending,
+                    status: JobStatus.rejected,
                   ),
                 ],
               ),

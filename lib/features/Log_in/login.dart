@@ -9,7 +9,7 @@ class LoginScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: Color(0xFFBCCEF4),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -23,7 +23,7 @@ class LoginScreen extends ConsumerWidget {
               child: Image.asset(
                 'assets/images/easyhire.jpg', // Replace with actual image
                 width: double.infinity,
-                height: 450,
+                height: 530,
                 fit: BoxFit.cover,
               ),
             ),
@@ -44,15 +44,15 @@ class LoginScreen extends ConsumerWidget {
                           TextSpan(
                             text: 'Find Jobs Easily\nwith ',
                             style: GoogleFonts.poppins(
-                              fontSize: 24,
+                              fontSize: 30,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
                           ),
-                          const TextSpan(
+                          TextSpan(
                             text: 'EasyHire',
-                            style: TextStyle(
-                              fontSize: 40,
+                            style: GoogleFonts.poppins(
+                              fontSize: 38,
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 65, 79, 141),
                             ),
@@ -99,7 +99,7 @@ class LoginScreen extends ConsumerWidget {
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.white,
                     side: const BorderSide(
-                        color: Color.fromARGB(66, 106, 72, 240)),
+                        color: Color.fromARGB(255, 22, 106, 180)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
