@@ -1,7 +1,9 @@
+import 'package:easy_hire/core/provider/google_auth_provider.dart';
 import 'package:easy_hire/features/profile/view/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   static const Color strokeWhite = Colors.white;
@@ -9,7 +11,7 @@ class SettingsScreen extends StatelessWidget {
   static const Color profileCardBackground = Color(0xFFF9F7FF);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cardShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
       side: const BorderSide(color: strokeWhite),
@@ -33,15 +35,19 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 32),
             _buildSectionTitle("Account"),
             _buildSettingsCard(cardShape, [
-              _buildSettingsTile(Icons.lightbulb_outline, "FAQ"),
-              _buildSettingsTile(Icons.info_outline, "Terms and Policies"),
-              _buildSettingsTile(Icons.star_border, "Rate my app"),
+              _buildSettingsTile(Icons.lightbulb_outline, "FAQ", () {}),
+              _buildSettingsTile(
+                  Icons.info_outline, "Terms and Policies", () {}),
+              _buildSettingsTile(Icons.star_border, "Rate my app", () {}),
             ]),
             const SizedBox(height: 32),
             _buildSectionTitle("Actions"),
             _buildSettingsCard(cardShape, [
-              _buildSettingsTile(Icons.logout, "Log out"),
-              _buildSettingsTile(Icons.cancel_outlined, "Delete Account"),
+              _buildSettingsTile(Icons.logout, "Log out", () {
+                ref.watch(googleAuthProvider.notifier).signOut();
+              }),
+              _buildSettingsTile(
+                  Icons.cancel_outlined, "Delete Account", () {}),
             ]),
           ],
         ),
@@ -119,12 +125,12 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsTile(IconData icon, String label) {
+  Widget _buildSettingsTile(IconData icon, String label, VoidCallback? onTap) {
     return ListTile(
       leading: Icon(icon, color: darkIconPurple),
       title: Text(label),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: () {},
+      onTap: onTap,
       visualDensity: VisualDensity.compact,
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_hire/core/provider/google_auth_provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   static const Color headerBackground = Color(0xFF1C2E74); // Lighter navy blue
@@ -9,7 +11,9 @@ class ProfileScreen extends StatelessWidget {
   static const Color textColor = Colors.black87;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(googleAuthProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -29,65 +33,71 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                height: 180,
-                decoration: const BoxDecoration(
-                  color: headerBackground,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
+      body: authState.when(
+        data: (user) => Column(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  height: 180,
+                  decoration: const BoxDecoration(
+                    color: headerBackground,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(40),
+                      bottomRight: Radius.circular(40),
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                bottom: -70,
-                left: 0,
-                right: 0,
-                child: Column(
-                  children: const [
-                    CircleAvatar(
-                      radius: 80,
-                      backgroundImage:
-                          AssetImage('assets/images/profile_pic.jpg'),
-                    ),
-                    SizedBox(height: 14),
-                    Text(
-                      'Nay Zin Ou',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.black87,
+                Positioned(
+                  bottom: -70,
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 80,
+                        backgroundImage: user?.photoUrl != null
+                            ? NetworkImage(user!.photoUrl!)
+                            : const AssetImage('assets/images/profile_pic.jpg')
+                                as ImageProvider,
                       ),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 90),
-
-          // Info Cards
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                _infoTile('Username', 'Nay Zin Ou'),
-                const SizedBox(height: 24),
-                _infoTile('Email', 'nayzinou@gmail.com'),
-                const SizedBox(height: 24),
-                _infoTile(
-                  'About Me',
-                  'A short bio about yourself goes here. You can describe your interests, work, or anything you’d like others to know.',
-                ),
+                      const SizedBox(height: 14),
+                      Text(
+                        user?.displayName ?? 'No Name',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 90),
+
+            // Info Cards
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  _infoTile('Username', user?.displayName ?? 'N/A'),
+                  const SizedBox(height: 24),
+                  _infoTile('Email', user?.email ?? 'N/A'),
+                  const SizedBox(height: 24),
+                  _infoTile(
+                    'About Me',
+                    'A short bio about yourself goes here. You can describe your interests, work, or anything you’d like others to know.',
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, st) => Center(child: Text('Error: $e')),
       ),
     );
   }
@@ -99,7 +109,7 @@ class ProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardBackground,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 6,

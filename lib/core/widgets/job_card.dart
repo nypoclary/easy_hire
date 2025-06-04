@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-
-
 class JobCardWidget extends StatefulWidget {
   final String role;
   final String company;
@@ -10,8 +8,6 @@ class JobCardWidget extends StatefulWidget {
   final List<String> tags;
   final String imageAsset;
   final VoidCallback onTap;
-
-
 
   const JobCardWidget({
     super.key,
@@ -22,7 +18,6 @@ class JobCardWidget extends StatefulWidget {
     required this.imageAsset,
     required this.onTap,
     required this.location,
-  
   });
 
   @override
@@ -40,7 +35,6 @@ class _JobCardWidgetState extends State<JobCardWidget> {
   void _handleProfileTapDown(_) => setState(() => isProfilePressed = true);
   void _handleProfileTapUp(_) => setState(() => isProfilePressed = false);
   void _handleProfileTapCancel() => setState(() => isProfilePressed = false);
-
 
   @override
   Widget build(BuildContext context) {
@@ -147,19 +141,32 @@ class _JobCardWidgetState extends State<JobCardWidget> {
                 const SizedBox(height: 20),
                 Row(
                   children: widget.tags.map((tag) {
-                    final isRemote = tag.toLowerCase() == 'remote';
-                    final isService = tag.toLowerCase().contains('service');
+                    final lowerTag = tag.toLowerCase();
+                    Color backgroundColor;
+                    Color textColor;
+
+                    if (lowerTag.contains('remote')) {
+                      backgroundColor = const Color(0xFFFFE4D6); // Light orange
+                      textColor = const Color(0xFFDE6E35); // Orange text
+                    } else if (lowerTag.contains('full')) {
+                      backgroundColor = const Color(0xFFE0F0FF); // Light blue
+                      textColor = const Color(0xFF005DAA); // Blue text
+                    } else if (lowerTag.contains('part')) {
+                      backgroundColor = const Color(0xFFD6F5E8); // Light green
+                      textColor = const Color(0xFF1C8B5F); // Green text
+                    } else {
+                      backgroundColor =
+                          const Color(0xFFEFEBFF); // Default light purple
+                      textColor = Colors.black;
+                    }
+
                     return Expanded(
                       child: Container(
                         margin: const EdgeInsets.only(right: 10),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 12),
                         decoration: BoxDecoration(
-                          color: isRemote
-                              ? const Color(0xFFFFE4D6)
-                              : (isService
-                                  ? const Color(0xFFEFEBFF)
-                                  : Colors.grey.shade200),
+                          color: backgroundColor,
                           borderRadius: BorderRadius.circular(14),
                         ),
                         alignment: Alignment.center,
@@ -168,9 +175,7 @@ class _JobCardWidgetState extends State<JobCardWidget> {
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 14,
-                            color: isRemote
-                                ? const Color(0xFFDE6E35)
-                                : Colors.black,
+                            color: textColor,
                           ),
                         ),
                       ),
@@ -185,4 +190,3 @@ class _JobCardWidgetState extends State<JobCardWidget> {
     );
   }
 }
- 

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "272216470454",
+    "project_id": "g1-easy-hire",
+    "storage_bucket": "g1-easy-hire.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:272216470454:android:ceed28bf9c285a2e290717",
+        "android_client_info": {
+          "package_name": "com.example.easy_hire"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "272216470454-tvkcaqru8jc2gi98qeb3avrar7kn3kdl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwbOe8bPM72sOIdVDOY5lFcbZV3tSz6WU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "272216470454-tvkcaqru8jc2gi98qeb3avrar7kn3kdl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
