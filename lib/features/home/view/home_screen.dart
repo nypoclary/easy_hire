@@ -59,56 +59,88 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Header(
-              title: 'Welcome to EasyHire',
-              hasAddButton: true,
-              hasBackButton: false,
-            ),
-            SizedBox(height: 24),
-            JobSearchBar(
-              onChanged: (query) {
-                ref.read(searchQueryProvider.notifier).state = query;
-              },
-            ),
-            SizedBox(height: 20),
-            LocationFilterChip(
-              locationOptions: ['All', 'Yangon', 'Mandalay', 'Naypyitaw'],
-            ),
-            SizedBox(height: 20),
-            JobFilterOptions(),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'Recent Jobs',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+            // header section with solid background
+            Container(
+              color: Colors.white,
+              child: Header(
+                title: 'Welcome to EasyHire',
+                hasAddButton: true,
+                hasBackButton: false,
               ),
             ),
+
+            // Search bar and location filter with elevation
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                children: [
+                  SizedBox(height: 24),
+                  JobSearchBar(
+                    onChanged: (query) {
+                      ref.read(searchQueryProvider.notifier).state = query;
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  LocationFilterChip(
+                    locationOptions: ['All', 'Yangon', 'Mandalay', 'Naypyitaw'],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 4,
+              color: Colors.white,
+            ),
+
+            // Scrollable content
             Expanded(
-              child: filteredJobs.isEmpty
-                  ? Center(child: Text('No jobs found in $selectedLocation'))
-                  : ListView.builder(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: filteredJobs.length,
-                      itemBuilder: (context, index) {
-                        final job = filteredJobs[index];
-                        return JobCardWidget(
-                          role: job['role'] as String,
-                          company: job['company'] as String,
-                          salary: job['salary'] as String,
-                          tags: (job['tags'] as List).cast<String>(),
-                          location: job['location'] as String,
-                          imageAsset: job['imageAsset'] as String,
-                          onTap: () {
-                            debugPrint('🟣 Card tapped!');
-                          },
-                        );
-                      },
+              child: ClipRRect( // Clip the scrollable content
+                child: filteredJobs.isEmpty
+                    ? Center(child: Text('No jobs found in $selectedLocation'))
+                    : ListView(
+                  physics: const ClampingScrollPhysics(),
+                  padding: EdgeInsets.only(top: 16),
+                  children: [
+                    JobFilterOptions(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0, left: 20.0, right: 20.0),
+                      child: Text(
+                        'All Jobs',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ),
+                    SizedBox(height: 12),
+                    ...filteredJobs.map((job) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: JobCardWidget(
+                        role: job['role'] as String,
+                        company: job['company'] as String,
+                        salary: job['salary'] as String,
+                        tags: (job['tags'] as List).cast<String>(),
+                        location: job['location'] as String,
+                        imageAsset: job['imageAsset'] as String,
+                        onTap: () {
+                          debugPrint('🟣 Card tapped!');
+                        },
+                      ),
+                    )),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
