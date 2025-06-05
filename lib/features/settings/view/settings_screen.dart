@@ -3,6 +3,9 @@ import 'package:easy_hire/features/profile/view/profile_screen.dart';
 import 'package:easy_hire/features/settings/view/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_hire/features/settings/terms_and_policies.dart';
+import 'package:easy_hire/features/settings/faq_screen.dart';
+import 'package:easy_hire/features/settings/about_us_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -37,9 +40,25 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 32),
             _buildSectionTitle("Account"),
             _buildSettingsCard(cardShape, [
-              _buildSettingsTile(Icons.lightbulb_outline, "FAQ", () {}),
-              _buildSettingsTile(Icons.info_outline, "Terms and Policies", () {}),
-              _buildSettingsTile(Icons.info_outline, "About us", () {}),
+              _buildSettingsTile(Icons.lightbulb_outline, "FAQ", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FaqScreen()),
+                );
+              }),
+              _buildSettingsTile(Icons.info_outline, "Terms and Policies", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const TermsAndPoliciesScreen()),
+                );
+              }),
+              _buildSettingsTile(Icons.info_outline, "About us", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AboutUsScreen()),
+                );
+              }),
             ]),
             const SizedBox(height: 32),
             _buildSectionTitle("Actions"),
@@ -47,7 +66,8 @@ class SettingsScreen extends ConsumerWidget {
               _buildSettingsTile(Icons.logout, "Log out", () {
                 ref.read(googleAuthProvider.notifier).signOut();
               }),
-              _buildSettingsTile(Icons.cancel_outlined, "Delete Account", () {}),
+              _buildSettingsTile(
+                  Icons.cancel_outlined, "Delete Account", () {}),
             ]),
           ],
         ),
