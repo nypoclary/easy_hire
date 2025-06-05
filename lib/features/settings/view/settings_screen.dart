@@ -1,5 +1,7 @@
+import 'package:easy_hire/core/models/google_user_data_model.dart';
 import 'package:easy_hire/core/provider/google_auth_provider.dart';
 import 'package:easy_hire/features/profile/view/profile_screen.dart';
+import 'package:easy_hire/services/dio_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -31,7 +33,7 @@ class SettingsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildProfileCard(context, cardShape),
+            _buildProfileCard(context, ref, cardShape),
             const SizedBox(height: 32),
             _buildSectionTitle("Account"),
             _buildSettingsCard(cardShape, [
@@ -44,7 +46,7 @@ class SettingsScreen extends ConsumerWidget {
             _buildSectionTitle("Actions"),
             _buildSettingsCard(cardShape, [
               _buildSettingsTile(Icons.logout, "Log out", () {
-                ref.watch(googleAuthProvider.notifier).signOut();
+                ref.read(googleAuthProvider.notifier).signOut();
               }),
               _buildSettingsTile(
                   Icons.cancel_outlined, "Delete Account", () {}),
@@ -55,7 +57,10 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileCard(BuildContext context, ShapeBorder shape) {
+  Widget _buildProfileCard(
+      BuildContext context, WidgetRef ref, ShapeBorder shape) {
+    final user = ref.watch(googleAuthProvider).value;
+
     return Card(
       elevation: 4,
       shape: shape,
@@ -71,23 +76,27 @@ class SettingsScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const ProfileScreen()),
                 );
               },
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 42,
-                backgroundImage: AssetImage('assets/images/profile_pic.jpg'),
+                backgroundImage: user?.photoUrl != null
+                    ? NetworkImage(user!.photoUrl!)
+                    : const AssetImage('assets/images/profile_pic.jpg')
+                        as ImageProvider,
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
-                    'Nay Koe Ou',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    user?.displayName ?? 'Guest User',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w600),
                   ),
-                  SizedBox(height: 6),
-                  Text('naykoeou@gmail.com',
-                      style: TextStyle(color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  Text(user?.email ?? '',
+                      style: const TextStyle(color: Colors.black54)),
                 ],
               ),
             ),
@@ -136,25 +145,32 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-class EditProfileScreen extends StatefulWidget {
+class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  final _usernameController = TextEditingController(text: 'Your Name');
-  final _emailController = TextEditingController(text: 'your@email.com');
-  final _aboutMeController =
-      TextEditingController(text: 'A short bio about yourself');
+  late final TextEditingController _usernameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _aboutMeController;
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = ref.read(googleAuthProvider).value;
+    _usernameController = TextEditingController(text: user?.displayName ?? '');
+    _emailController = TextEditingController(text: user?.email ?? '');
+    _aboutMeController = TextEditingController(text: user?.aboutMe ?? '');
+  }
 
   @override
   void dispose() {
@@ -166,12 +182,57 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final user = ref.read(googleAuthProvider).value;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No user signed in')),
+      );
+      return;
+    }
+
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Saving changes...')),
+      );
+
+      final updatedName = _usernameController.text.trim();
+      final updatedEmail = _emailController.text.trim();
+      final updatedBio = _aboutMeController.text.trim();
+      final updatedPhoto = user.photoUrl ?? '';
+
+      final dioClient = DioClient();
+      await dioClient.initialize();
+
+      await dioClient.updateUserProfile(
+        userId: user.id,
+        name: updatedName,
+        email: updatedEmail,
+        photoUrl: updatedPhoto,
+        aboutMe: updatedBio,
+      );
+
+      ref.read(googleAuthProvider.notifier).state = AsyncValue.data(
+        GoogleUserData(
+          id: user.id,
+          email: updatedEmail,
+          displayName: updatedName,
+          photoUrl: updatedPhoto,
+          aboutMe: updatedBio,
+        ),
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated')),
       );
-      Navigator.pop(context);
+      //Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating profile: $e')),
+      );
     }
   }
 
@@ -188,8 +249,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const profileImage = 'assets/images/profile_pic.jpg';
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
@@ -204,9 +263,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           key: _formKey,
           child: Column(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 80,
-                backgroundImage: AssetImage(profileImage),
+                backgroundImage:
+                    ref.watch(googleAuthProvider).value?.photoUrl != null
+                        ? NetworkImage(
+                            ref.watch(googleAuthProvider).value!.photoUrl!)
+                        : const AssetImage('assets/images/profile_pic.jpg')
+                            as ImageProvider,
               ),
               const SizedBox(height: 40),
               TextFormField(
@@ -231,57 +295,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 validator: (value) => value == null || value.isEmpty
                     ? 'Please enter something about yourself'
                     : null,
-              ),
-              const SizedBox(height: 35),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: _inputDecoration('New Password').copyWith(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                ),
-                validator: (value) {
-                  if (value != null && value.isNotEmpty && value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 35),
-              TextFormField(
-                controller: _confirmPasswordController,
-                obscureText: _obscureConfirmPassword,
-                decoration: _inputDecoration('Confirm Password').copyWith(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureConfirmPassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureConfirmPassword = !_obscureConfirmPassword;
-                      });
-                    },
-                  ),
-                ),
-                validator: (value) {
-                  if (_passwordController.text.isNotEmpty &&
-                      value != _passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 35),
               SizedBox(
