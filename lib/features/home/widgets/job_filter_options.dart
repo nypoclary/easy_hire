@@ -44,7 +44,7 @@ class JobFilterOptions extends StatelessWidget {
                     color: const Color(0xFFE2F8D5),
                     borderColor: const Color(0xFFCBF4A2).withOpacity(0.5),
                     onTap: () {
-                      context.go('/job-search/Part%20Time');
+                      context.go('/job-search/Part-Time');
                     },
                   ),
                 ),
@@ -58,11 +58,10 @@ class JobFilterOptions extends StatelessWidget {
                     color: const Color(0xFFB5E2FA),
                     borderColor: const Color(0xFF7FC3FF).withOpacity(0.5),
                     onTap: () {
-                      context.go('/job-search/Full%20Time');
+                      context.go('/job-search/Full-Time');
                     },
                   ),
                 ),
-
               ],
             ),
           ),
@@ -72,13 +71,13 @@ class JobFilterOptions extends StatelessWidget {
   }
 
   Widget _buildJobCategoryCard(
-      BuildContext context, {
-        required String title,
-        required String imagePath,
-        required Color color,
-        required Color borderColor,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required String title,
+    required String imagePath,
+    required Color color,
+    required Color borderColor,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
