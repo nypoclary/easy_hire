@@ -13,6 +13,7 @@ final jobListProvider = FutureProvider<List<JobModel>>((ref) async {
   final response = await dio.get('/jobs');
 
   final data = response.data as List;
+  
   return data.map((json) {
     final id = json['id'] ?? ''; // Ensure ID is extracted
     return JobModel.fromMap(json, id);

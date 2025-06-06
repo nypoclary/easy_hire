@@ -8,8 +8,10 @@ class JobModel {
   final String type; // e.g., "Part-Time"
   final String requirements;
   final String responsibilities;
-  final Map<String, String> jobSummary;
   final String imageUrl; // optional, default placeholder allowed
+  final String? createdBy;
+  final String? createdByName;       // ✅ NEW
+  final String? createdByPhotoUrl;   // ✅ NEW
 
   JobModel({
     required this.id,
@@ -21,8 +23,10 @@ class JobModel {
     required this.type,
     required this.requirements,
     required this.responsibilities,
-    required this.jobSummary,
     required this.imageUrl,
+    this.createdBy,
+    this.createdByName,
+    this.createdByPhotoUrl,
   });
 
   /// Convert Firestore map → JobModel
@@ -37,8 +41,10 @@ class JobModel {
       type: map['type'] ?? '',
       requirements: map['requirements'] ?? '',
       responsibilities: map['responsibilities'] ?? '',
-      jobSummary: Map<String, String>.from(map['jobSummary'] ?? {}),
-      imageUrl: map['imageUrl'] ?? '', // fallback handled in UI
+      imageUrl: map['imageUrl'] ?? '',
+      createdBy: map['createdBy'] ?? '',
+      createdByName: map['createdByName'],         // ✅ from backend
+      createdByPhotoUrl: map['createdByPhotoUrl'], // ✅ from backend
     );
   }
 
@@ -53,8 +59,10 @@ class JobModel {
       'type': type,
       'requirements': requirements,
       'responsibilities': responsibilities,
-      'jobSummary': jobSummary,
       'imageUrl': imageUrl,
+      'createdBy': createdBy,
+      'createdByName': createdByName,
+      'createdByPhotoUrl': createdByPhotoUrl,
     };
   }
 }

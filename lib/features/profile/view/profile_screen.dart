@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_hire/core/provider/google_auth_provider.dart';
 import 'package:easy_hire/core/models/google_user_data_model.dart';
-import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
+  final GoogleUserData? user; // 👈 Accept user to view their profile
+
+  const ProfileScreen({super.key, this.user});
 
   static const Color headerBackground = Color(0xFF1C2E74);
   static const Color cardBackground = Colors.white;
@@ -13,27 +14,21 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 👇 If user is passed in (e.g. job poster), show it directly
+    if (user != null) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: _buildAppBar(context),
+        body: _buildProfile(context, user!),
+      );
+    }
+
+    // 👇 Otherwise, show the logged-in user (default behavior)
     final authState = ref.watch(googleAuthProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: headerBackground,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go('/'), // 👈 GoRouter navigation to home
-        ),
-        title: const Text(
-          'My Profile',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-      ),
+      appBar: _buildAppBar(context),
       body: authState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -41,38 +36,64 @@ class ProfileScreen extends ConsumerWidget {
           if (user == null) {
             return const Center(child: Text('User not signed in.'));
           }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 40),
-            child: Column(
-              children: [
-                _buildHeader(user),
-                const SizedBox(height: 30),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      _infoTile('Username', user.displayName ?? 'N/A'),
-                      const SizedBox(height: 24),
-                      _infoTile('Email', user.email ?? 'N/A'),
-                      const SizedBox(height: 24),
-                      _infoTile(
-                        'About Me',
-                        user.aboutMe?.trim().isNotEmpty == true
-                            ? user.aboutMe!
-                            : 'A short bio about yourself goes here...',
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
+          return _buildProfile(context, user);
         },
       ),
     );
   }
 
+  /// 🔼 AppBar
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: headerBackground,
+      elevation: 0,
+      centerTitle: true,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: const Text(
+        'Profile',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+      ),
+    );
+  }
+
+  /// 🧑 User profile layout
+  Widget _buildProfile(BuildContext context, GoogleUserData user) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 40),
+      child: Column(
+        children: [
+          _buildHeader(user),
+          const SizedBox(height: 30),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                _infoTile('Username', user.displayName ?? 'N/A'),
+                const SizedBox(height: 24),
+                _infoTile('Email', user.email ?? 'N/A'),
+                const SizedBox(height: 24),
+                _infoTile(
+                  'About Me',
+                  user.aboutMe?.trim().isNotEmpty == true
+                      ? user.aboutMe!
+                      : 'A short bio about this user goes here...',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 🖼️ Profile photo + name
   Widget _buildHeader(GoogleUserData user) {
     return Container(
       width: double.infinity,
@@ -107,6 +128,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
+  /// 📄 User info card
   Widget _infoTile(String title, String content) {
     return Container(
       width: double.infinity,

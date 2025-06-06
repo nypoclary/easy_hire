@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_hire/core/models/job_model.dart';
+import 'package:easy_hire/core/models/user_service.dart';
+import 'package:easy_hire/core/models/google_user_data_model.dart';
+import 'package:easy_hire/features/profile/view/profile_screen.dart';
 
 class JobCardWidget extends StatefulWidget {
   final JobModel job;
@@ -27,9 +30,35 @@ class _JobCardWidgetState extends State<JobCardWidget> {
   void _handleProfileTapUp(_) => setState(() => isProfilePressed = false);
   void _handleProfileTapCancel() => setState(() => isProfilePressed = false);
 
+  Future<void> _handleProfileTap() async {
+    final creatorId = widget.job.createdBy;
+
+    if (creatorId == null || creatorId.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No creator info available.")),
+      );
+      return;
+    }
+
+    try {
+      final user = await fetchUserById(creatorId);
+      if (!mounted) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ProfileScreen(user: user)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to load profile.")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final job = widget.job;
+    print("👤 job.createdByPhotoUrl = ${job.createdByPhotoUrl}");
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -55,10 +84,10 @@ class _JobCardWidgetState extends State<JobCardWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top row
             Row(
               children: [
                 GestureDetector(
+                  onTap: _handleProfileTap,
                   onTapDown: _handleProfileTapDown,
                   onTapUp: _handleProfileTapUp,
                   onTapCancel: _handleProfileTapCancel,
@@ -70,17 +99,18 @@ class _JobCardWidgetState extends State<JobCardWidget> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black
-                              .withOpacity(isProfilePressed ? 0.2 : 0.05),
+                          color: Colors.black.withOpacity(
+                              isProfilePressed ? 0.2 : 0.05),
                           offset: Offset(0, isProfilePressed ? 6 : 2),
                           blurRadius: isProfilePressed ? 10 : 4,
                         ),
                       ],
                     ),
                     child: ClipOval(
-                      child: job.imageUrl.isNotEmpty
+                      child: job.createdByPhotoUrl != null &&
+                              job.createdByPhotoUrl!.isNotEmpty
                           ? Image.network(
-                              job.imageUrl,
+                              job.createdByPhotoUrl!,
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) =>
                                   const Icon(Icons.person),
@@ -110,10 +140,7 @@ class _JobCardWidgetState extends State<JobCardWidget> {
                 )
               ],
             ),
-
             const SizedBox(height: 20),
-
-            // Salary
             RichText(
               text: TextSpan(
                 text: job.salary,
@@ -134,10 +161,7 @@ class _JobCardWidgetState extends State<JobCardWidget> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Tags Row with Expanded to match original
             Row(
               children: [
                 Expanded(child: _buildTagChip(job.tag)),

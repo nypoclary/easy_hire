@@ -5,8 +5,7 @@ class DioClient {
   Dio? _dio;
   bool _isInitialized = false;
 
-  // Replace this IP with your server IP if needed
-static const String _baseUrl = 'http://10.0.2.2:3000/api/v1'; // for Android
+  static const String _baseUrl = 'http://10.0.2.2:3000/api/v1';
 
   DioClient._internal();
 
@@ -51,7 +50,6 @@ static const String _baseUrl = 'http://10.0.2.2:3000/api/v1'; // for Android
     _dio!.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Add auth headers if needed
           handler.next(options);
         },
         onResponse: (response, handler) {
@@ -71,10 +69,6 @@ static const String _baseUrl = 'http://10.0.2.2:3000/api/v1'; // for Android
       ),
     );
   }
-
-  // --------------------------
-  // USER PROFILE METHODS
-  // --------------------------
 
   Future<void> createUserProfile({
     required String userId,
@@ -121,9 +115,13 @@ static const String _baseUrl = 'http://10.0.2.2:3000/api/v1'; // for Android
     }
   }
 
-  // --------------------------
-  // UTILITIES
-  // --------------------------
+  Future<void> createJob(Map<String, dynamic> jobData) async {
+    try {
+      await dio.post('/jobs', data: jobData);
+    } on DioException catch (error) {
+      throw _handleError(error);
+    }
+  }
 
   static String get baseUrl => _baseUrl;
 
@@ -163,10 +161,6 @@ static const String _baseUrl = 'http://10.0.2.2:3000/api/v1'; // for Android
     }
   }
 }
-
-// --------------------------
-// CUSTOM EXCEPTIONS
-// --------------------------
 
 class ApiException implements Exception {
   final String message;
