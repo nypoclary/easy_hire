@@ -99,7 +99,7 @@ class JobDetailScreen extends StatelessWidget {
   /// Builds 3 aligned columns from dynamic + static fields
   static Widget _buildAlignedSummary(JobModel job) {
     final summaryItems = <MapEntry<String, String>>[
-      ...job.jobSummary.entries,
+      // ...job.jobSummary.entries,
       MapEntry('Location', job.location),
       MapEntry('Salary', job.salary),
       MapEntry('Category', job.type),

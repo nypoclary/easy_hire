@@ -1,3 +1,4 @@
+import 'package:easy_hire/features/job_create/view/create_job_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -87,6 +88,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/apply-job',
         builder: (context, state) => const JobApplyScreen(),
+      ),
+      GoRoute(
+        path: '/create-job',
+        builder: (context, state) => const CreateJobScreen(),
       ),
     ],
   );

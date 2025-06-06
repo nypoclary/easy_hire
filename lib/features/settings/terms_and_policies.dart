@@ -1,3 +1,4 @@
+import 'package:easy_hire/core/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class TermsAndPoliciesScreen extends StatelessWidget {
@@ -5,13 +6,11 @@ class TermsAndPoliciesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   
-
     return Scaffold(
-      backgroundColor: const Color.fromARGB(
-          255, 195, 171, 246), // Use your AppTheme.primaryNavyBlue
+      backgroundColor:
+          AppTheme.primaryNavyBlue, // Use your AppTheme.primaryNavyBlue
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 195, 171, 246),
+        backgroundColor: AppTheme.primaryNavyBlue,
         title: const Text("About Us", style: TextStyle(color: Colors.white)),
         centerTitle: true,
         elevation: 0,

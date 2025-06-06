@@ -11,7 +11,7 @@ class AddBottomSheet extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(35)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(35)),
         border: Border.all(color: AppTheme.primaryNavyBlue, width: 1),
       ),
       padding: const EdgeInsets.all(24),
@@ -49,7 +49,7 @@ class AddBottomSheet extends StatelessWidget {
                 context.go('/job-search');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryNavyBlue, // deep navy blue
+                backgroundColor: AppTheme.primaryNavyBlue,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -69,7 +69,10 @@ class AddBottomSheet extends StatelessWidget {
             width: 300,
             child: OutlinedButton(
               onPressed: () {
-                // TODO: Add your navigation logic
+                Navigator.of(context).pop();       // Close the bottom sheet
+                Future.microtask(() =>             // Avoid push from closing context
+                  context.push('/create-job'),
+                );
               },
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
