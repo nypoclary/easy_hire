@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_hire/core/provider/google_auth_provider.dart';
 import 'package:easy_hire/core/models/google_user_data_model.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -22,7 +23,7 @@ class ProfileScreen extends ConsumerWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go('/'), // 👈 GoRouter navigation to home
         ),
         title: const Text(
           'My Profile',
@@ -46,7 +47,7 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               children: [
                 _buildHeader(user),
-                const SizedBox(height: 90),
+                const SizedBox(height: 30),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
@@ -73,45 +74,36 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildHeader(GoogleUserData user) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          height: 180,
-          decoration: const BoxDecoration(
-            color: headerBackground,
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(40),
-              bottomRight: Radius.circular(40),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 30),
+      decoration: const BoxDecoration(
+        color: headerBackground,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
+      ),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 60,
+            backgroundImage: user.photoUrl != null && user.photoUrl!.isNotEmpty
+                ? NetworkImage(user.photoUrl!)
+                : const AssetImage('assets/images/profile_pic.jpg')
+                    as ImageProvider,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            user.displayName ?? 'No Name',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: Colors.white,
             ),
           ),
-        ),
-        Positioned(
-          bottom: -70,
-          left: 0,
-          right: 0,
-          child: Column(
-            children: [
-              CircleAvatar(
-                radius: 80,
-                backgroundImage: user.photoUrl != null
-                    ? NetworkImage(user.photoUrl!)
-                    : const AssetImage('assets/images/profile_pic.jpg')
-                        as ImageProvider,
-              ),
-              const SizedBox(height: 14),
-              Text(
-                user.displayName ?? 'No Name',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -1,9 +1,11 @@
 import 'package:easy_hire/core/app_theme.dart';
-import 'package:flutter/material.dart';
 import 'package:easy_hire/core/widgets/add_bottom_sheet.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_hire/core/provider/google_auth_provider.dart';
 
-class Header extends StatelessWidget {
+class Header extends ConsumerWidget {
   final String title;
   final bool hasAddButton;
   final bool hasBackButton;
@@ -27,7 +29,9 @@ class Header extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userState = ref.watch(googleAuthProvider);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -64,7 +68,7 @@ class Header extends StatelessWidget {
                         ),
                 ),
 
-                //  Center Title
+                // Center Title
                 Center(
                   child: Text(
                     title,
@@ -75,17 +79,35 @@ class Header extends StatelessWidget {
                   ),
                 ),
 
-                //  Profile Picture
+                // Profile Picture
                 Align(
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
                     onTap: () {
                       context.go('/profile');
                     },
-                    child: const CircleAvatar(
-                      radius: 22,
-                      backgroundImage:
-                          AssetImage('assets/images/profile_pic.jpg'),
+                    child: userState.when(
+                      data: (user) {
+                        final imageProvider = (user?.photoUrl != null &&
+                                user!.photoUrl!.isNotEmpty)
+                            ? NetworkImage(user.photoUrl!)
+                            : const AssetImage('assets/images/profile_pic.jpg')
+                                as ImageProvider;
+
+                        return CircleAvatar(
+                          radius: 22,
+                          backgroundImage: imageProvider,
+                        );
+                      },
+                      loading: () => const CircleAvatar(
+                        radius: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      error: (_, __) => const CircleAvatar(
+                        radius: 22,
+                        backgroundImage:
+                            AssetImage('assets/images/profile_pic.jpg'),
+                      ),
                     ),
                   ),
                 ),
@@ -94,7 +116,7 @@ class Header extends StatelessWidget {
           ),
         ),
 
-        //  Divider below header
+        // Divider below header
         const Divider(height: 2, thickness: 1, color: Color(0xFFE0E0E0)),
       ],
     );
