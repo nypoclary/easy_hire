@@ -4,7 +4,7 @@ import 'package:easy_hire/features/settings/view/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_hire/features/settings/terms_and_policies.dart';
-import 'package:easy_hire/features/settings/faq_screen.dart';SSSSSS
+import 'package:easy_hire/features/settings/faq_screen.dart';
 import 'package:easy_hire/features/settings/about_us_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
