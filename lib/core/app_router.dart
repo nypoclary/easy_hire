@@ -11,6 +11,7 @@ import 'package:easy_hire/core/widgets/bottom_nav.dart';
 import 'package:easy_hire/features/job_detail/view/job_detail_screen.dart';
 import 'package:easy_hire/features/profile/view/profile_screen.dart';
 import 'package:easy_hire/features/Log_in/login.dart';
+import 'package:easy_hire/core/models/job_model.dart';
 
 /// ✅ Create a GoRouter provider
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -74,15 +75,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/job-detail',
-        builder: (context, state) => const JobDetailScreen(
-          role: 'Default Role',
-          company: 'Default Company',
-          salary: '\$0',
-          tags: [],
-          requirements: '',
-          responsibilities: '',
-          jobSummary: {},
-        ),
+        builder: (context, state) {
+          final job = state.extra as JobModel;
+          return JobDetailScreen(job: job);
+        },
       ),
       GoRoute(
         path: '/profile',
