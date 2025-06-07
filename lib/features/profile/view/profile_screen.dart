@@ -1,11 +1,11 @@
-import 'package:easy_hire/features/home/view/home_screen.dart';
+import 'package:easy_hire/core/models/google_user_data_model.dart';
+import 'package:easy_hire/core/provider/google_auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easy_hire/core/provider/google_auth_provider.dart';
-import 'package:easy_hire/core/models/google_user_data_model.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
-  final GoogleUserData? user; // 👈 Accept user to view their profile
+  final GoogleUserData? user; // Accepts optional user
 
   const ProfileScreen({super.key, this.user});
 
@@ -15,16 +15,15 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 👇 If user is passed in (e.g. job poster), show it directly
+    // If specific user is passed (e.g., to view someone else)
     if (user != null) {
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: _buildAppBar(context),
-        body: _buildProfile(context, user!),
+        body: _buildProfile(user!),
       );
     }
 
-    // 👇 Otherwise, show the logged-in user (default behavior)
     final authState = ref.watch(googleAuthProvider);
 
     return Scaffold(
@@ -37,13 +36,12 @@ class ProfileScreen extends ConsumerWidget {
           if (user == null) {
             return const Center(child: Text('User not signed in.'));
           }
-          return _buildProfile(context, user);
+          return _buildProfile(user);
         },
       ),
     );
   }
 
-  /// 🔼 AppBar
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: headerBackground,
@@ -51,7 +49,12 @@ class ProfileScreen extends ConsumerWidget {
       centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () {
+          // Use GoRouter safely
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go('/');
+          });
+        },
       ),
       title: const Text(
         'Profile',
@@ -64,8 +67,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  /// 🧑 User profile layout
-  Widget _buildProfile(BuildContext context, GoogleUserData user) {
+  Widget _buildProfile(GoogleUserData user) {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 40),
       child: Column(
@@ -94,7 +96,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  /// 🖼️ Profile photo + name
   Widget _buildHeader(GoogleUserData user) {
     return Container(
       width: double.infinity,
@@ -129,7 +130,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  /// 📄 User info card
   Widget _infoTile(String title, String content) {
     return Container(
       width: double.infinity,

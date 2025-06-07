@@ -11,7 +11,7 @@ class JobFilterOptions extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left: Remote Job (Big)
+          // Left: Remote Job (Tall Card)
           Expanded(
             flex: 1,
             child: SizedBox(
@@ -23,14 +23,14 @@ class JobFilterOptions extends StatelessWidget {
                 color: const Color(0xFFFABFBC),
                 borderColor: const Color(0xFFA2CEF4),
                 onTap: () {
-                  context.go('/job-search/Remote');
+                  context.go('/job-search/remote'); // ✅ normalized
                 },
               ),
             ),
           ),
           const SizedBox(width: 16.0),
 
-          // Right: Part Time + Full Time (Stacked)
+          // Right: Part Time + Full Time
           Expanded(
             flex: 1,
             child: Column(
@@ -44,7 +44,7 @@ class JobFilterOptions extends StatelessWidget {
                     color: const Color(0xFFE2F8D5),
                     borderColor: const Color(0xFFCBF4A2).withOpacity(0.5),
                     onTap: () {
-                      context.go('/job-search/Part-Time');
+                      context.go('/job-search/part time'); // ✅ normalized
                     },
                   ),
                 ),
@@ -58,7 +58,7 @@ class JobFilterOptions extends StatelessWidget {
                     color: const Color(0xFFB5E2FA),
                     borderColor: const Color(0xFF7FC3FF).withOpacity(0.5),
                     onTap: () {
-                      context.go('/job-search/Full-Time');
+                      context.go('/job-search/full time'); // ✅ normalized
                     },
                   ),
                 ),

@@ -8,7 +8,6 @@ import 'package:easy_hire/core/widgets/job_card.dart';
 import 'package:easy_hire/core/provider/search_provider.dart';
 import 'package:easy_hire/core/provider/location_provider.dart';
 import 'package:easy_hire/core/provider/job_provider.dart';
-import 'package:easy_hire/features/job_detail/view/job_detail_screen.dart';
 
 class JobSearchScreen extends ConsumerWidget {
   final String? category;
@@ -27,7 +26,7 @@ class JobSearchScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Header(
-              title: category != null ? '${category!} Jobs' : 'All Jobs',
+              title: category != null ? '${_formatTitle(category!)} Jobs' : 'All Jobs',
               hasBackButton: category != null,
               hasAddButton: category == null,
               onBackPressed: () => context.go('/'),
@@ -65,25 +64,22 @@ class JobSearchScreen extends ConsumerWidget {
               child: jobAsync.when(
                 data: (jobs) {
                   final filtered = jobs.where((job) {
+                    final normalizedCategory = category?.toLowerCase().trim().replaceAll('-', ' ') ?? '';
+                    final workMode = job.workMode.toLowerCase().trim().replaceAll('-', ' ');
                     final role = job.role.toLowerCase();
                     final company = job.company.toLowerCase();
                     final tag = job.tag.toLowerCase();
-                    final type = job.jobType.toLowerCase();
-                    final workMode = job.workMode.toLowerCase();
+                    final jobType = job.jobType.toLowerCase();
                     final categoryField = job.category.toLowerCase();
                     final location = job.location.toLowerCase();
 
-                    final matchesCategory = category != null &&
-                            category != 'All' &&
-                            category!.isNotEmpty
-                        ? categoryField.contains(category!.toLowerCase())
-                        : true;
+                    final matchesWorkMode = workMode.contains(normalizedCategory);
 
                     final matchesSearch = searchQuery.isEmpty ||
                         role.contains(searchQuery) ||
                         company.contains(searchQuery) ||
                         tag.contains(searchQuery) ||
-                        type.contains(searchQuery) ||
+                        jobType.contains(searchQuery) ||
                         workMode.contains(searchQuery) ||
                         categoryField.contains(searchQuery);
 
@@ -91,8 +87,14 @@ class JobSearchScreen extends ConsumerWidget {
                         ? true
                         : location.contains(selectedLocation.toLowerCase());
 
-                    return matchesCategory && matchesSearch && matchesLocation;
+                    return matchesWorkMode && matchesSearch && matchesLocation;
                   }).toList();
+
+                  if (filtered.isEmpty) {
+                    return Center(
+                      child: Text('No ${_formatTitle(category ?? '')} jobs found.'),
+                    );
+                  }
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -108,7 +110,8 @@ class JobSearchScreen extends ConsumerWidget {
                     },
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () =>
+                    const Center(child: CircularProgressIndicator()),
                 error: (err, _) => Center(
                   child: Text('Error: ${err.toString()}'),
                 ),
@@ -118,5 +121,14 @@ class JobSearchScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Capitalizes the first letter of each word (e.g. "part time" → "Part Time")
+  String _formatTitle(String input) {
+    return input
+        .split(' ')
+        .map((word) =>
+            word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : '')
+        .join(' ');
   }
 }
