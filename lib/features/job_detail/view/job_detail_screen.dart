@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_hire/core/models/job_model.dart';
 import 'package:easy_hire/core/widgets/header.dart';
 import 'package:easy_hire/core/app_theme.dart';
-import 'package:easy_hire/core/models/user_service.dart';
 import 'package:easy_hire/features/profile/view/profile_screen.dart';
+import 'package:easy_hire/core/provider/google_auth_provider.dart';
+import 'package:easy_hire/core/models/user_service.dart';
 
-class JobDetailScreen extends StatelessWidget {
+class JobDetailScreen extends ConsumerWidget {
   final JobModel job;
 
   const JobDetailScreen({super.key, required this.job});
@@ -29,7 +31,9 @@ class JobDetailScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(googleAuthProvider).value;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F6FF),
       body: SafeArea(
@@ -52,10 +56,12 @@ class JobDetailScreen extends StatelessWidget {
                   GestureDetector(
                     onTap: () => _handleProfileTap(context),
                     child: CircleAvatar(
-                      backgroundImage: job.createdByPhotoUrl != null && job.createdByPhotoUrl!.isNotEmpty
+                      backgroundImage: job.createdByPhotoUrl != null &&
+                              job.createdByPhotoUrl!.isNotEmpty
                           ? NetworkImage(job.createdByPhotoUrl!)
                           : null,
-                      child: job.createdByPhotoUrl == null || job.createdByPhotoUrl!.isEmpty
+                      child: job.createdByPhotoUrl == null ||
+                              job.createdByPhotoUrl!.isEmpty
                           ? const Icon(Icons.person)
                           : null,
                     ),
@@ -83,37 +89,51 @@ class JobDetailScreen extends StatelessWidget {
                     const SizedBox(height: 32),
                     const Text(
                       'Requirements',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      job.requirements.trim().isNotEmpty ? job.requirements.trim() : '-',
+                      job.requirements.trim().isNotEmpty
+                          ? job.requirements.trim()
+                          : '-',
                       style: const TextStyle(height: 1.6, fontSize: 15),
                     ),
                     const SizedBox(height: 24),
                     const Text(
                       'Responsibilities:',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                     ),
                     const SizedBox(height: 8),
                     _buildBulletPoints(job.responsibilities),
                     const SizedBox(height: 30),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryNavyBlue,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        onPressed: () => context.push('/apply-job'),
-                        child: const Text(
-                          'Apply',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
+                      child: job.createdBy == currentUser?.id
+                          ? const Text(
+                              "You can't apply to your own job.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontStyle: FontStyle.italic),
+                            )
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryNavyBlue,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              onPressed: () => context.push('/apply-job'),
+                              child: const Text(
+                                'Apply',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
+                              ),
+                            ),
                     ),
                     const SizedBox(height: 40),
                   ],
@@ -150,10 +170,12 @@ class JobDetailScreen extends StatelessWidget {
                 onTap: () => _handleProfileTap(context),
                 child: CircleAvatar(
                   radius: 20,
-                  backgroundImage: job.createdByPhotoUrl != null && job.createdByPhotoUrl!.isNotEmpty
+                  backgroundImage: job.createdByPhotoUrl != null &&
+                          job.createdByPhotoUrl!.isNotEmpty
                       ? NetworkImage(job.createdByPhotoUrl!)
                       : null,
-                  child: job.createdByPhotoUrl == null || job.createdByPhotoUrl!.isEmpty
+                  child: job.createdByPhotoUrl == null ||
+                          job.createdByPhotoUrl!.isEmpty
                       ? const Icon(Icons.person)
                       : null,
                 ),
@@ -165,12 +187,16 @@ class JobDetailScreen extends StatelessWidget {
                   children: [
                     Text(
                       job.role,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2A1258)),
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2A1258)),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${job.company}, ${job.location}',
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      style:
+                          TextStyle(fontSize: 13, color: Colors.grey.shade600),
                     ),
                   ],
                 ),
@@ -189,7 +215,10 @@ class JobDetailScreen extends StatelessWidget {
               children: const [
                 TextSpan(
                   text: '/Mo',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey),
                 ),
               ],
             ),
@@ -197,9 +226,17 @@ class JobDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              _tagChip(job.category, const Color(0xFFF3F0FF), const Color(0xFF5B2E91)),
+              Expanded(
+                child: _tagChip(
+                  job.category,
+                  const Color(0xFFF3F0FF),
+                  const Color(0xFF5B2E91),
+                ),
+              ),
               const SizedBox(width: 8),
-              _buildWorkModeTag(job.workMode),
+              Expanded(
+                child: _buildWorkModeTag(job.workMode),
+              ),
             ],
           ),
         ],
@@ -209,14 +246,21 @@ class JobDetailScreen extends StatelessWidget {
 
   Widget _tagChip(String label, Color bgColor, Color textColor) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
       ),
+      alignment: Alignment.center,
       child: Text(
         label,
-        style: TextStyle(fontSize: 13, color: textColor, fontWeight: FontWeight.w500),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 13,
+          color: textColor,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
@@ -260,15 +304,17 @@ class JobDetailScreen extends StatelessWidget {
         return SizedBox(
           width: MediaQuery.of(context).size.width / 3 - 24,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 entry.key,
-                style: const TextStyle(fontSize: 13, color: Colors.black54),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 13, color: Colors.black87),
               ),
               const SizedBox(height: 4),
               Text(
                 entry.value.trim().isNotEmpty ? entry.value : '-',
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.blue,

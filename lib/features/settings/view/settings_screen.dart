@@ -72,8 +72,6 @@ class SettingsScreen extends ConsumerWidget {
               _buildSettingsTile(Icons.logout, "Log out", () {
                 ref.read(googleAuthProvider.notifier).signOut();
               }),
-              _buildSettingsTile(
-                  Icons.cancel_outlined, "Delete Account", () {}),
             ]),
           ],
         ),

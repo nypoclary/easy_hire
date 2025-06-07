@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:easy_hire/core/models/job_model.dart';
 import 'package:easy_hire/core/widgets/header.dart';
 import 'package:easy_hire/core/widgets/job_search_bar.dart';
 import 'package:easy_hire/features/home/widgets/location_filter_chip.dart';
@@ -40,7 +39,15 @@ class JobSearchScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             LocationFilterChip(
-              locationOptions: ['All', 'Yangon', 'Mandalay', 'Naypyitaw'],
+              locationOptions: [
+                'All',
+                'Yangon',
+                'Mandalay',
+                'Naypyitaw',
+                'Mawlamyine',
+                'Sagaing',
+                'Bago'
+              ],
             ),
             const SizedBox(height: 8),
             const Padding(

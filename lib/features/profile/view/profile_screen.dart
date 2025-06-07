@@ -1,3 +1,4 @@
+import 'package:easy_hire/features/home/view/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_hire/core/provider/google_auth_provider.dart';

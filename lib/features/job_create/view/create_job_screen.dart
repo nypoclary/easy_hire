@@ -17,7 +17,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   final Map<String, String> formData = {};
   final TextEditingController salaryController = TextEditingController();
   final TextEditingController requirementsController = TextEditingController();
-  final TextEditingController responsibilitiesController = TextEditingController();
+  final TextEditingController responsibilitiesController =
+      TextEditingController();
 
   String? selectedCategory;
   String? selectedWorkMode;
@@ -29,13 +30,33 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   );
 
   final List<String> categories = [
-    'Office', 'Accounting', 'Sales', 'Support', 'Teaching', 'IT', 'Technical',
-    'Driving', 'Delivery', 'Cleaning', 'Security', 'Healthcare', 'Restaurant',
-    'Construction', 'Design'
+    'Office',
+    'Accounting',
+    'Sales',
+    'Support',
+    'Teaching',
+    'IT',
+    'Technical',
+    'Driving',
+    'Delivery',
+    'Cleaning',
+    'Security',
+    'Healthcare',
+    'Restaurant',
+    'Construction',
+    'Design'
   ];
 
   final List<String> workModes = ['Remote', 'Full-time', 'Part-time'];
-  final List<String> locations = ['Yangon', 'Mandalay', 'Naypyitaw', 'All'];
+  final List<String> locations = [
+    'Yangon',
+    'Mandalay',
+    'Naypyitaw',
+    'All',
+    'Mawlamyine',
+    'Bago',
+    'Sagaing'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +68,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         elevation: 0.5,
         title: const Text(
           'Create A Job',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black),
+          style: TextStyle(
+              fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -64,7 +86,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: const [
-                BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2)),
+                BoxShadow(
+                    color: Colors.black12, blurRadius: 8, offset: Offset(0, 2)),
               ],
             ),
             child: Column(
@@ -73,27 +96,48 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                 _sectionHeader('Basic Info'),
                 _formRow('Job Title'),
                 _formRow('Company Name'),
-                _popupRow('Location', selectedLocation, locations, (value) => setState(() => selectedLocation = value)),
-                _formRow('Salary', hintText: '10000 - 20000 baht', controller: salaryController),
-                _formRow('Job Type'),
-                _popupRow('Work Mode', selectedWorkMode, workModes, (value) => setState(() => selectedWorkMode = value)),
-
+                _popupRow('Location', selectedLocation, locations,
+                    (value) => setState(() => selectedLocation = value)),
+                _formRow(
+                  'Salary',
+                  hintText: '10000 - 20000 baht',
+                  controller: salaryController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty)
+                      return 'Salary is required';
+                    if (!RegExp(r'^\d{1,8}\$').hasMatch(value.trim())) {
+                      return 'Only numbers allowed (up to 8 digits)';
+                    }
+                    return null;
+                  },
+                ),
+                _formRow(
+                  'Job Type',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty)
+                      return 'Job Type is required';
+                    if (!RegExp(r'^[a-zA-Z ]+\$').hasMatch(value.trim())) {
+                      return 'Only characters and spaces allowed';
+                    }
+                    return null;
+                  },
+                ),
+                _popupRow('Work Mode', selectedWorkMode, workModes,
+                    (value) => setState(() => selectedWorkMode = value)),
                 const SizedBox(height: 24),
                 _sectionHeader('Job Summary'),
                 _formRow('Education'),
-                _formRow('Working Days'),
-                _formRow('Working Hours'),
+                _formRow('Working Days', hintText: 'Mon - Sat'),
+                _formRow('Working Hours', hintText: '9AM - 6PM'),
                 _label('Category'),
                 const SizedBox(height: 8),
                 _categoryDropdown(),
-
                 const SizedBox(height: 24),
                 _sectionHeader('Requirements'),
                 _input(maxLines: 4, controller: requirementsController),
                 const SizedBox(height: 24),
                 _sectionHeader('Responsibilities'),
                 _input(maxLines: 4, controller: responsibilitiesController),
-
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
@@ -102,9 +146,14 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
                     onPressed: _handleSubmit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0C1C6B),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Create Job', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white)),
+                    child: const Text('Create Job',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Colors.white)),
                   ),
                 )
               ],
@@ -116,6 +165,10 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
   }
 
   void _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     final userState = ref.read(googleAuthProvider);
     final user = userState.value;
 
@@ -129,7 +182,9 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     if (requirementsController.text.trim().isEmpty &&
         responsibilitiesController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill either Requirements or Responsibilities')),
+        const SnackBar(
+            content:
+                Text('Please fill either Requirements or Responsibilities')),
       );
       return;
     }
@@ -162,20 +217,30 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     try {
       await dioClient.createJob(jobPayload);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Job created successfully!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Job created successfully!')));
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to create job: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to create job: $e')));
     }
   }
 
   Widget _sectionHeader(String text) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: Text(text, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+        child: Text(text,
+            style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                color: Colors.black87)),
       );
 
-  Widget _formRow(String labelText, {String? hintText, TextEditingController? controller}) => Column(
+  Widget _formRow(String labelText,
+          {String? hintText,
+          TextEditingController? controller,
+          String? Function(String?)? validator}) =>
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _label(labelText),
@@ -183,23 +248,29 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           TextFormField(
             controller: controller,
             onChanged: (value) => formData[labelText] = value,
+            validator: validator,
             decoration: InputDecoration(
               hintText: hintText,
               filled: true,
               fillColor: Colors.white,
               border: border,
               enabledBorder: border,
-              focusedBorder: border.copyWith(borderSide: BorderSide(color: lightPurple, width: 2)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              focusedBorder: border.copyWith(
+                  borderSide: BorderSide(color: lightPurple, width: 2)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
           ),
           const SizedBox(height: 16),
         ],
       );
 
-  Widget _label(String text) => Text(text, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87));
+  Widget _label(String text) => Text(text,
+      style: const TextStyle(
+          fontWeight: FontWeight.w500, fontSize: 14, color: Colors.black87));
 
-  Widget _input({int maxLines = 1, TextEditingController? controller}) => TextFormField(
+  Widget _input({int maxLines = 1, TextEditingController? controller}) =>
+      TextFormField(
         controller: controller,
         maxLines: maxLines,
         decoration: InputDecoration(
@@ -207,12 +278,16 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
           fillColor: Colors.white,
           border: border,
           enabledBorder: border,
-          focusedBorder: border.copyWith(borderSide: BorderSide(color: lightPurple, width: 2)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          focusedBorder: border.copyWith(
+              borderSide: BorderSide(color: lightPurple, width: 2)),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       );
 
-  Widget _popupRow(String label, String? selected, List<String> options, ValueChanged<String> onSelected) => Column(
+  Widget _popupRow(String label, String? selected, List<String> options,
+          ValueChanged<String> onSelected) =>
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _label(label),
@@ -240,7 +315,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
       );
 
   Widget _categoryDropdown() => GestureDetector(
-        onTap: () => _showPopupDialog('Category', categories, (value) => setState(() => selectedCategory = value)),
+        onTap: () => _showPopupDialog('Category', categories,
+            (value) => setState(() => selectedCategory = value)),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
@@ -258,7 +334,8 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
         ),
       );
 
-  void _showPopupDialog(String title, List<String> options, ValueChanged<String> onSelected) {
+  void _showPopupDialog(
+      String title, List<String> options, ValueChanged<String> onSelected) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
