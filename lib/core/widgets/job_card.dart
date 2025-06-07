@@ -56,14 +56,16 @@ class JobCardWidget extends StatelessWidget {
                       color: const Color(0xFFEDE8FF),
                       shape: BoxShape.circle,
                     ),
-                    child: job.createdByPhotoUrl != null && job.createdByPhotoUrl!.isNotEmpty
+                    child: job.createdByPhotoUrl != null &&
+                            job.createdByPhotoUrl!.isNotEmpty
                         ? ClipOval(
                             child: Image.network(
                               job.createdByPhotoUrl!,
                               fit: BoxFit.cover,
                               width: 44,
                               height: 44,
-                              errorBuilder: (_, __, ___) => const Icon(Icons.person),
+                              errorBuilder: (_, __, ___) =>
+                                  const Icon(Icons.person),
                             ),
                           )
                         : const Icon(Icons.person, size: 24),
@@ -117,9 +119,17 @@ class JobCardWidget extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                _buildTag(job.category, const Color(0xFFF3F0FF), const Color(0xFF5B2E91)),
+                Expanded(
+                  child: _buildTag(
+                    job.category,
+                    const Color(0xFFF3F0FF),
+                    const Color(0xFF5B2E91),
+                  ),
+                ),
                 const SizedBox(width: 8),
-                _buildWorkModeTag(job.workMode),
+                Expanded(
+                  child: _buildWorkModeTag(job.workMode),
+                ),
               ],
             ),
           ],
@@ -130,13 +140,16 @@ class JobCardWidget extends StatelessWidget {
 
   Widget _buildTag(String label, Color bgColor, Color textColor) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
       ),
+      alignment: Alignment.center,
       child: Text(
         label,
+        textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w500,
