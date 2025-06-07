@@ -1,14 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_hire/core/models/job_model.dart';
-import 'package:easy_hire/core/widgets/job_card.dart';
 import 'package:easy_hire/core/widgets/header.dart';
 import 'package:easy_hire/core/app_theme.dart';
+import 'package:easy_hire/core/models/user_service.dart';
+import 'package:easy_hire/features/profile/view/profile_screen.dart';
 
 class JobDetailScreen extends StatelessWidget {
   final JobModel job;
 
   const JobDetailScreen({super.key, required this.job});
+
+  void _handleProfileTap(BuildContext context) async {
+    if (job.createdBy == null || job.createdBy!.trim().isEmpty) return;
+    try {
+      final user = await fetchUserById(job.createdBy!);
+      if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ProfileScreen(user: user)),
+        );
+      }
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to load profile.")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +35,33 @@ class JobDetailScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Header(
-              title: 'Job Details',
-              hasBackButton: true,
-              hasAddButton: false,
-              onBackPressed: () => context.pop(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  const BackButton(color: Colors.black),
+                  const Spacer(),
+                  Text(
+                    'Job Details',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => _handleProfileTap(context),
+                    child: CircleAvatar(
+                      backgroundImage: job.createdByPhotoUrl != null && job.createdByPhotoUrl!.isNotEmpty
+                          ? NetworkImage(job.createdByPhotoUrl!)
+                          : null,
+                      child: job.createdByPhotoUrl == null || job.createdByPhotoUrl!.isEmpty
+                          ? const Icon(Icons.person)
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -29,40 +69,31 @@ class JobDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    JobCardWidget(job: job, onTap: () {}),
-                    const SizedBox(height: 24),
+                    _buildHeaderCard(context),
+                    const SizedBox(height: 32),
                     const Text(
                       'Job Summary:',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildAlignedSummary(job),
+                    _buildSummaryGrid(context),
                     const SizedBox(height: 32),
                     const Text(
                       'Requirements',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 18,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      job.requirements.trim().isNotEmpty
-                          ? job.requirements.trim()
-                          : '-',
-                      style: const TextStyle(height: 1.4),
+                      job.requirements.trim().isNotEmpty ? job.requirements.trim() : '-',
+                      style: const TextStyle(height: 1.6, fontSize: 15),
                     ),
                     const SizedBox(height: 24),
                     const Text(
                       'Responsibilities:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 18,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                     ),
                     const SizedBox(height: 8),
                     _buildBulletPoints(job.responsibilities),
@@ -72,10 +103,9 @@ class JobDetailScreen extends StatelessWidget {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryNavyBlue,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 24),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                         onPressed: () => context.push('/apply-job'),
@@ -96,68 +126,163 @@ class JobDetailScreen extends StatelessWidget {
     );
   }
 
-  /// Builds 3 aligned columns from dynamic + static fields
-  static Widget _buildAlignedSummary(JobModel job) {
-    final summaryItems = <MapEntry<String, String>>[
-      // ...job.jobSummary.entries,
-      MapEntry('Location', job.location),
-      MapEntry('Salary', job.salary),
-      MapEntry('Category', job.type),
-    ];
-
-    final columns = <List<MapEntry<String, String>>>[[], [], []];
-    for (int i = 0; i < summaryItems.length; i++) {
-      columns[i % 3].add(summaryItems[i]);
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: columns.map((col) {
-        return Column(
-          children: col
-              .map((e) => Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    child: _alignedSummaryBlock(e.key, e.value),
-                  ))
-              .toList(),
-        );
-      }).toList(),
-    );
-  }
-
-  static Widget _alignedSummaryBlock(String label, String value) {
-    return SizedBox(
-      width: 110,
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14.5,
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-            softWrap: false,
-            overflow: TextOverflow.ellipsis,
+  Widget _buildHeaderCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFD9D6F6)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          const SizedBox(height: 6),
-          Text(
-            value.trim().isNotEmpty ? value.trim() : '-',
-            style: const TextStyle(
-              fontSize: 15,
-              color: Colors.blue,
-              fontWeight: FontWeight.w600,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () => _handleProfileTap(context),
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: job.createdByPhotoUrl != null && job.createdByPhotoUrl!.isNotEmpty
+                      ? NetworkImage(job.createdByPhotoUrl!)
+                      : null,
+                  child: job.createdByPhotoUrl == null || job.createdByPhotoUrl!.isEmpty
+                      ? const Icon(Icons.person)
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      job.role,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2A1258)),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${job.company}, ${job.location}',
+                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text.rich(
+            TextSpan(
+              text: job.salary,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF9333EA),
+              ),
+              children: const [
+                TextSpan(
+                  text: '/Mo',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),
+                ),
+              ],
             ),
-            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _tagChip(job.category, const Color(0xFFF3F0FF), const Color(0xFF5B2E91)),
+              const SizedBox(width: 8),
+              _buildWorkModeTag(job.workMode),
+            ],
           ),
         ],
       ),
     );
   }
 
-  static Widget _buildBulletPoints(String text) {
+  Widget _tagChip(String label, Color bgColor, Color textColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 13, color: textColor, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+
+  Widget _buildWorkModeTag(String label) {
+    final lower = label.toLowerCase();
+    Color bgColor;
+    Color textColor;
+
+    if (lower.contains('remote')) {
+      bgColor = const Color(0xFFFFE4D6);
+      textColor = const Color(0xFFDE6E35);
+    } else if (lower.contains('full')) {
+      bgColor = const Color(0xFFD6E9FF);
+      textColor = const Color(0xFF1C6DB2);
+    } else if (lower.contains('part')) {
+      bgColor = const Color(0xFFD6F5E8);
+      textColor = const Color(0xFF1C8B5F);
+    } else {
+      bgColor = const Color(0xFFEAEAEA);
+      textColor = Colors.black87;
+    }
+
+    return _tagChip(label, bgColor, textColor);
+  }
+
+  Widget _buildSummaryGrid(BuildContext context) {
+    final items = [
+      MapEntry('Working days', job.workingDays),
+      MapEntry('Education', job.education),
+      MapEntry('Category', job.category),
+      MapEntry('Location', job.location),
+      MapEntry('Salary', job.salary),
+      MapEntry('Working hours', job.workingHours),
+    ];
+
+    return Wrap(
+      spacing: 20,
+      runSpacing: 24,
+      children: items.map((entry) {
+        return SizedBox(
+          width: MediaQuery.of(context).size.width / 3 - 24,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                entry.key,
+                style: const TextStyle(fontSize: 13, color: Colors.black54),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                entry.value.trim().isNotEmpty ? entry.value : '-',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildBulletPoints(String text) {
     final lines = text
         .split(RegExp(r'[•\n]'))
         .map((e) => e.trim())
@@ -178,7 +303,7 @@ class JobDetailScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   line,
-                  style: const TextStyle(fontSize: 15, height: 1.4),
+                  style: const TextStyle(fontSize: 15, height: 1.5),
                 ),
               ),
             ],
