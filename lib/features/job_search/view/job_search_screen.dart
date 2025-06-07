@@ -20,7 +20,6 @@ class JobSearchScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
     final selectedLocation = ref.watch(locationFilterProvider);
-
     final jobAsync = ref.watch(jobListProvider);
 
     return Scaffold(
@@ -62,19 +61,25 @@ class JobSearchScreen extends ConsumerWidget {
                     final role = job.role.toLowerCase();
                     final company = job.company.toLowerCase();
                     final tag = job.tag.toLowerCase();
-                    final type = job.type.toLowerCase();
+                    final type = job.jobType.toLowerCase();
+                    final workMode = job.workMode.toLowerCase();
+                    final categoryField = job.category.toLowerCase();
                     final location = job.location.toLowerCase();
+
                     final matchesCategory = category != null &&
                             category != 'All' &&
                             category!.isNotEmpty
-                        ? tag.contains(category!.toLowerCase()) ||
-                            type.contains(category!.toLowerCase())
+                        ? categoryField.contains(category!.toLowerCase())
                         : true;
+
                     final matchesSearch = searchQuery.isEmpty ||
                         role.contains(searchQuery) ||
                         company.contains(searchQuery) ||
                         tag.contains(searchQuery) ||
-                        type.contains(searchQuery);
+                        type.contains(searchQuery) ||
+                        workMode.contains(searchQuery) ||
+                        categoryField.contains(searchQuery);
+
                     final matchesLocation = selectedLocation == 'All'
                         ? true
                         : location.contains(selectedLocation.toLowerCase());

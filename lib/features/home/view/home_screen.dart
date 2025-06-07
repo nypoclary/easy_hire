@@ -18,8 +18,6 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedLocation = ref.watch(locationFilterProvider);
     final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
-
-    // Define job data
     final jobListAsync = ref.watch(jobListProvider);
 
     return Scaffold(
@@ -27,7 +25,6 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // header section with solid background
             Container(
               color: Colors.white,
               child: Header(
@@ -36,8 +33,6 @@ class HomeScreen extends ConsumerWidget {
                 hasBackButton: false,
               ),
             ),
-
-            // Search bar and location filter with elevation
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -69,79 +64,65 @@ class HomeScreen extends ConsumerWidget {
               height: 4,
               color: Colors.white,
             ),
-
-            // Scrollable content
             Expanded(
-              child: Consumer(
-                builder: (context, ref, _) {
-                  final jobListAsync = ref.watch(jobListProvider);
-                  final selectedLocation = ref.watch(locationFilterProvider);
-                  final searchQuery =
-                      ref.watch(searchQueryProvider).toLowerCase();
+              child: jobListAsync.when(
+                data: (jobs) {
+                  final filtered = jobs.where((job) {
+                    final location = job.location.toLowerCase();
+                    final role = job.role.toLowerCase();
+                    final company = job.company.toLowerCase();
+                    final tag = job.tag.toLowerCase();
+                    final jobType = job.jobType.toLowerCase();
+                    final category = job.category.toLowerCase();
+                    final workMode = job.workMode.toLowerCase();
 
-                  return jobListAsync.when(
-                    data: (jobs) {
-                      final filtered = jobs
-                          .where((job) {
-                            final matchesLocation = selectedLocation == 'All' ||
-                                job.location
-                                    .toLowerCase()
-                                    .contains(selectedLocation.toLowerCase());
+                    final locationMatch = selectedLocation == 'All' ||
+                        location.contains(selectedLocation.toLowerCase());
 
-                            final matchesSearch = searchQuery.isEmpty ||
-                                job.role.toLowerCase().contains(searchQuery) ||
-                                job.company
-                                    .toLowerCase()
-                                    .contains(searchQuery) ||
-                                job.tag.toLowerCase().contains(searchQuery) ||
-                                job.type.toLowerCase().contains(searchQuery);
+                    final queryMatch = searchQuery.isEmpty ||
+                        role.contains(searchQuery) ||
+                        company.contains(searchQuery) ||
+                        tag.contains(searchQuery) ||
+                        jobType.contains(searchQuery) ||
+                        category.contains(searchQuery) ||
+                        workMode.contains(searchQuery);
 
-                            return matchesLocation && matchesSearch;
-                          })
-                          .take(5)
-                          .toList();
+                    return locationMatch && queryMatch;
+                  }).take(5).toList();
 
-                      return filtered.isEmpty
-                          ? Center(
-                              child: Text('No jobs found in $selectedLocation'))
-                          : ListView(
-                              physics: const ClampingScrollPhysics(),
-                              padding: const EdgeInsets.only(top: 16),
-                              children: [
-                                const JobFilterOptions(),
-                                const Padding(
-                                  padding: EdgeInsets.only(
-                                      top: 12.0, left: 20.0, right: 20.0),
-                                  child: Text(
-                                    'All Jobs',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
+                  return filtered.isEmpty
+                      ? Center(child: Text('No jobs found in $selectedLocation'))
+                      : ListView(
+                          physics: const ClampingScrollPhysics(),
+                          padding: const EdgeInsets.only(top: 16),
+                          children: [
+                            const JobFilterOptions(),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 12.0, left: 20.0, right: 20.0),
+                              child: Text(
+                                'All Jobs',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
                                 ),
-                                const SizedBox(height: 12),
-                                ...filtered.map((job) => Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0),
-                                      child: JobCardWidget(
-                                        job: job,
-                                        onTap: () {
-                                          context.push('/job-detail',
-                                              extra: job);
-                                        },
-                                      ),
-                                    )),
-                              ],
-                            );
-                    },
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (error, _) =>
-                        Center(child: Text('Error loading jobs: $error')),
-                  );
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            ...filtered.map((job) => Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: JobCardWidget(
+                                    job: job,
+                                    onTap: () {
+                                      context.push('/job-detail', extra: job);
+                                    },
+                                  ),
+                                )),
+                          ],
+                        );
                 },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, _) => Center(child: Text('Error loading jobs: $error')),
               ),
             ),
           ],

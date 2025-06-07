@@ -138,23 +138,25 @@ class _CreateJobScreenState extends ConsumerState<CreateJobScreen> {
     await dioClient.initialize();
 
     final jobPayload = {
-      'role': formData['Job Title'],
-      'company': formData['Company Name'],
-      'location': selectedLocation,
+      'role': formData['Job Title'] ?? '',
+      'company': formData['Company Name'] ?? '',
       'salary': salaryController.text.trim(),
-      'jobType': formData['Job Type'],
-      'workMode': selectedWorkMode,
-      'education': formData['Education'],
-      'workingDays': formData['Working Days'],
-      'workingHours': formData['Working Hours'],
-      'category': selectedCategory,
+      'location': selectedLocation ?? '',
+      'jobType': formData['Job Type'] ?? '',
+      'workMode': selectedWorkMode ?? '',
+      'education': formData['Education'] ?? '',
+      'workingDays': formData['Working Days'] ?? '',
+      'workingHours': formData['Working Hours'] ?? '',
+      'category': selectedCategory ?? '',
       'requirements': requirementsController.text.trim(),
       'responsibilities': responsibilitiesController.text.trim(),
+      'jobSummary': '',
       'tags': [],
+      'tag': '',
+      'imageUrl': '',
       'createdBy': user.id,
       'createdByName': user.displayName ?? '',
-'createdByPhotoUrl': user.photoUrl ?? '',
-
+      'createdByPhotoUrl': user.photoUrl ?? '',
     };
 
     try {

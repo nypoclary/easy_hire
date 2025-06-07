@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:easy_hire/core/models/job_model.dart';
 import 'package:easy_hire/core/models/user_service.dart';
-import 'package:easy_hire/core/models/google_user_data_model.dart';
 import 'package:easy_hire/features/profile/view/profile_screen.dart';
 
-class JobCardWidget extends StatefulWidget {
+class JobCardWidget extends StatelessWidget {
   final JobModel job;
   final VoidCallback onTap;
 
@@ -14,41 +13,17 @@ class JobCardWidget extends StatefulWidget {
     required this.onTap,
   });
 
-  @override
-  State<JobCardWidget> createState() => _JobCardWidgetState();
-}
-
-class _JobCardWidgetState extends State<JobCardWidget> {
-  bool isPressed = false;
-  bool isProfilePressed = false;
-
-  void _handleTapDown(_) => setState(() => isPressed = true);
-  void _handleTapUp(_) => setState(() => isPressed = false);
-  void _handleTapCancel() => setState(() => isPressed = false);
-
-  void _handleProfileTapDown(_) => setState(() => isProfilePressed = true);
-  void _handleProfileTapUp(_) => setState(() => isProfilePressed = false);
-  void _handleProfileTapCancel() => setState(() => isProfilePressed = false);
-
-  Future<void> _handleProfileTap() async {
-    final creatorId = widget.job.createdBy;
-
-    if (creatorId == null || creatorId.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No creator info available.")),
-      );
-      return;
-    }
-
+  void _handleProfileTap(BuildContext context) async {
+    if (job.createdBy == null || job.createdBy!.trim().isEmpty) return;
     try {
-      final user = await fetchUserById(creatorId);
-      if (!mounted) return;
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => ProfileScreen(user: user)),
-      );
-    } catch (e) {
+      final user = await fetchUserById(job.createdBy!);
+      if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ProfileScreen(user: user)),
+        );
+      }
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Failed to load profile.")),
       );
@@ -57,29 +32,15 @@ class _JobCardWidgetState extends State<JobCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final job = widget.job;
-    print("👤 job.createdByPhotoUrl = ${job.createdByPhotoUrl}");
-
     return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        margin: const EdgeInsets.symmetric(vertical: 10),
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 12),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFFF9F6FF),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFA993FF), width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isPressed ? 0.15 : 0.05),
-              offset: Offset(0, isPressed ? 6 : 2),
-              blurRadius: isPressed ? 16 : 6,
-            ),
-          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFDAD0FF), width: 1.5),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,62 +48,54 @@ class _JobCardWidgetState extends State<JobCardWidget> {
             Row(
               children: [
                 GestureDetector(
-                  onTap: _handleProfileTap,
-                  onTapDown: _handleProfileTapDown,
-                  onTapUp: _handleProfileTapUp,
-                  onTapCancel: _handleProfileTapCancel,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 100),
-                    width: 40,
-                    height: 40,
+                  onTap: () => _handleProfileTap(context),
+                  child: Container(
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
+                      color: const Color(0xFFEDE8FF),
                       shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(
-                              isProfilePressed ? 0.2 : 0.05),
-                          offset: Offset(0, isProfilePressed ? 6 : 2),
-                          blurRadius: isProfilePressed ? 10 : 4,
-                        ),
-                      ],
                     ),
-                    child: ClipOval(
-                      child: job.createdByPhotoUrl != null &&
-                              job.createdByPhotoUrl!.isNotEmpty
-                          ? Image.network(
+                    child: job.createdByPhotoUrl != null && job.createdByPhotoUrl!.isNotEmpty
+                        ? ClipOval(
+                            child: Image.network(
                               job.createdByPhotoUrl!,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.person),
-                            )
-                          : const Icon(Icons.person),
-                    ),
+                              width: 44,
+                              height: 44,
+                              errorBuilder: (_, __, ___) => const Icon(Icons.person),
+                            ),
+                          )
+                        : const Icon(Icons.person, size: 24),
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(job.role,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Color(0xFF2A1258))),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${job.company}, ${job.location}',
-                        style: TextStyle(
-                            fontSize: 14, color: Colors.grey.shade700),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      job.role,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Color(0xFF2A1258),
                       ),
-                    ],
-                  ),
-                )
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${job.company}, ${job.location}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-            const SizedBox(height: 20),
-            RichText(
-              text: TextSpan(
+            const SizedBox(height: 16),
+            Text.rich(
+              TextSpan(
                 text: job.salary,
                 style: const TextStyle(
                   fontSize: 20,
@@ -161,11 +114,12 @@ class _JobCardWidgetState extends State<JobCardWidget> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildTagChip(job.tag)),
-                Expanded(child: _buildTagChip(job.type)),
+                _buildTag(job.category, const Color(0xFFF3F0FF), const Color(0xFF5B2E91)),
+                const SizedBox(width: 8),
+                _buildWorkModeTag(job.workMode),
               ],
             ),
           ],
@@ -174,41 +128,43 @@ class _JobCardWidgetState extends State<JobCardWidget> {
     );
   }
 
-  Widget _buildTagChip(String label) {
-    final lower = label.toLowerCase();
-    Color backgroundColor;
-    Color textColor;
-
-    if (lower.contains('remote')) {
-      backgroundColor = const Color(0xFFFFE4D6);
-      textColor = const Color(0xFFDE6E35);
-    } else if (lower.contains('full')) {
-      backgroundColor = const Color(0xFFE0F0FF);
-      textColor = const Color(0xFF005DAA);
-    } else if (lower.contains('part')) {
-      backgroundColor = const Color(0xFFD6F5E8);
-      textColor = const Color(0xFF1C8B5F);
-    } else {
-      backgroundColor = const Color(0xFFEFEBFF);
-      textColor = Colors.black;
-    }
-
+  Widget _buildTag(String label, Color bgColor, Color textColor) {
     return Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(14),
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
       ),
-      alignment: Alignment.center,
       child: Text(
-        label.trim(),
+        label,
         style: TextStyle(
+          fontSize: 13,
           fontWeight: FontWeight.w500,
-          fontSize: 14,
           color: textColor,
         ),
       ),
     );
+  }
+
+  Widget _buildWorkModeTag(String label) {
+    final lower = label.toLowerCase();
+    Color bgColor;
+    Color textColor;
+
+    if (lower.contains('remote')) {
+      bgColor = const Color(0xFFFFE4D6);
+      textColor = const Color(0xFFDE6E35);
+    } else if (lower.contains('full')) {
+      bgColor = const Color(0xFFD6E9FF);
+      textColor = const Color(0xFF1C6DB2);
+    } else if (lower.contains('part')) {
+      bgColor = const Color(0xFFD6F5E8);
+      textColor = const Color(0xFF1C8B5F);
+    } else {
+      bgColor = const Color(0xFFEAEAEA);
+      textColor = Colors.black87;
+    }
+
+    return _buildTag(label, bgColor, textColor);
   }
 }
