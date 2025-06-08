@@ -21,11 +21,22 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
   Color getBorderColor(ApplicationStatus status) {
     switch (status) {
       case ApplicationStatus.accepted:
-        return Colors.green.shade600;
+        return Colors.green;
       case ApplicationStatus.pending:
-        return Colors.orange.shade600;
+        return Colors.amber;
       case ApplicationStatus.rejected:
-        return Colors.red.shade600;
+        return Colors.red;
+    }
+  }
+
+  Color getStatusBgColor(ApplicationStatus status) {
+    switch (status) {
+      case ApplicationStatus.accepted:
+        return Colors.green.shade100;
+      case ApplicationStatus.pending:
+        return Colors.amber.shade100;
+      case ApplicationStatus.rejected:
+        return Colors.red.shade100;
     }
   }
 
@@ -51,21 +62,58 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
     }
   }
 
+  Widget _buildTag(String label, Color bgColor, Color textColor) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWorkModeTag(String label) {
+    final lower = label.toLowerCase();
+    Color bgColor;
+    Color textColor;
+
+    if (lower.contains('remote')) {
+      bgColor = const Color(0xFFFFE4D6);
+      textColor = const Color(0xFFDE6E35);
+    } else if (lower.contains('full')) {
+      bgColor = const Color(0xFFD6E9FF);
+      textColor = const Color(0xFF1C6DB2);
+    } else if (lower.contains('part')) {
+      bgColor = const Color(0xFFD6F5E8);
+      textColor = const Color(0xFF1C8B5F);
+    } else {
+      bgColor = const Color(0xFFEAEAEA);
+      textColor = Colors.black87;
+    }
+
+    return _buildTag(label, bgColor, textColor);
+  }
+
   Widget buildJobCard(JobApplicationModel application) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9F6FF),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: getBorderColor(application.status), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border:
+            Border.all(color: getBorderColor(application.status), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,19 +121,20 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
           Row(
             children: [
               Container(
-                width: 50,
-                height: 50,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8E2FF),
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFEDE8FF),
+                  shape: BoxShape.circle,
                 ),
                 child: application.companyPhotoUrl != null &&
                         application.companyPhotoUrl!.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
+                    ? ClipOval(
                         child: Image.network(
                           application.companyPhotoUrl!,
                           fit: BoxFit.cover,
+                          width: 44,
+                          height: 44,
                           errorBuilder: (_, __, ___) => const Icon(
                             Icons.business,
                             size: 24,
@@ -99,116 +148,105 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
                         color: Color(0xFF6B46C1),
                       ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            application.jobTitle,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2A1258),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: getBorderColor(application.status)
-                                .withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                getStatusText(application.status),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: getStatusTextColor(application.status),
-                                ),
-                              ),
-                              if (application.status ==
-                                  ApplicationStatus.rejected) ...[
-                                const SizedBox(width: 6),
-                                GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (_) => DeleteConfirmationDialog(
-                                        onConfirm: () async {
-                                          Navigator.pop(context);
+                    Text(
+                      application.jobTitle,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Color(0xFF2A1258),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      application.companyName,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Status badge positioned at top right
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: getBorderColor(application.status).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      getStatusText(application.status),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: getStatusTextColor(application.status),
+                      ),
+                    ),
+                    if (application.status == ApplicationStatus.rejected) ...[
+                      const SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => DeleteConfirmationDialog(
+                              onConfirm: () async {
+                                Navigator.pop(context);
 
-                                          try {
-                                            await ref
-                                                .read(
-                                                    applicationDeletionProvider
-                                                        .notifier)
-                                                .deleteApplication(
-                                                    application.id);
+                                try {
+                                  await ref
+                                      .read(
+                                          applicationDeletionProvider.notifier)
+                                      .deleteApplication(application.id);
 
-                                            if (mounted) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      'Application deleted successfully'),
-                                                  backgroundColor: Colors.green,
-                                                ),
-                                              );
-                                            }
-                                          } catch (error) {
-                                            if (mounted) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                      'Failed to delete application: ${error.toString()}'),
-                                                  backgroundColor: Colors.red,
-                                                ),
-                                              );
-                                            }
-                                          }
-                                        },
-                                        onCancel: () => Navigator.pop(context),
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Application deleted successfully'),
+                                        backgroundColor: Colors.green,
                                       ),
                                     );
-                                  },
-                                  child: const Icon(
-                                    Icons.delete,
-                                    size: 16,
-                                    color: Color.fromARGB(255, 245, 7, 7),
-                                  ),
-                                )
-                              ]
-                            ],
-                          ),
+                                  }
+                                } catch (error) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Failed to delete application: ${error.toString()}'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              onCancel: () => Navigator.pop(context),
+                            ),
+                          );
+                        },
+                        child: const Icon(
+                          Icons.delete,
+                          size: 16,
+                          color: Color.fromARGB(255, 245, 7, 7),
                         ),
-                      ],
-                    ),
+                      )
+                    ]
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            application.companyName,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade700,
-            ),
-          ),
-          const SizedBox(height: 20),
-          RichText(
-            text: TextSpan(
+          const SizedBox(height: 16),
+          Text.rich(
+            TextSpan(
               text: application.salary,
               style: const TextStyle(
                 fontSize: 20,
@@ -229,28 +267,24 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
           ),
           const SizedBox(height: 16),
           Row(
-            children: application.tags.map((tag) {
-              final isRemote = tag.toLowerCase().contains('remote');
-              return Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isRemote
-                      ? const Color(0xFFFFE4D6)
-                      : const Color(0xFFE8E2FF),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  tag,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: isRemote ? const Color(0xFFDE6E35) : Colors.black,
+            children: [
+              if (application.tags.isNotEmpty) ...[
+                Expanded(
+                  child: _buildTag(
+                    application.tags.first,
+                    const Color(0xFFF3F0FF),
+                    const Color(0xFF5B2E91),
                   ),
                 ),
-              );
-            }).toList(),
+                const SizedBox(width: 8),
+              ],
+              if (application.tags.length > 1)
+                Expanded(
+                  child: _buildWorkModeTag(application.tags[1]),
+                ),
+              if (application.tags.length == 1)
+                const Expanded(child: SizedBox()),
+            ],
           ),
         ],
       ),
