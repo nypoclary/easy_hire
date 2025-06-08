@@ -163,6 +163,15 @@ class DioClient {
     }
   }
 
+  // ✅ Delete a job application
+  Future<void> deleteApplication(String applicationId) async {
+    try {
+      await dio.delete('/apply/$applicationId');
+    } on DioException catch (error) {
+      throw _handleError(error);
+    }
+  }
+
   static String get baseUrl => _baseUrl;
 
   static String get wsUrl => _baseUrl

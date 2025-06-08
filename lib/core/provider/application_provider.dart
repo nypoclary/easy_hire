@@ -72,3 +72,31 @@ final applicationSubmissionProvider =
     StateNotifierProvider<ApplicationSubmissionNotifier, AsyncValue<void>>(
   (ref) => ApplicationSubmissionNotifier(ref),
 );
+
+// ✅ State notifier for managing application deletion
+class ApplicationDeletionNotifier extends StateNotifier<AsyncValue<void>> {
+  ApplicationDeletionNotifier(this.ref) : super(const AsyncValue.data(null));
+
+  final Ref ref;
+
+  Future<void> deleteApplication(String applicationId) async {
+    state = const AsyncValue.loading();
+
+    try {
+      final dioClient = ref.read(dioClientProvider);
+      await dioClient.initialize();
+      await dioClient.deleteApplication(applicationId);
+      state = const AsyncValue.data(null);
+
+      // Invalidate user applications to refresh the list
+      ref.invalidate(userApplicationsProvider);
+    } catch (error, stack) {
+      state = AsyncValue.error(error, stack);
+    }
+  }
+}
+
+final applicationDeletionProvider =
+    StateNotifierProvider<ApplicationDeletionNotifier, AsyncValue<void>>(
+  (ref) => ApplicationDeletionNotifier(ref),
+);

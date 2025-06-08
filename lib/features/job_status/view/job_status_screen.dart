@@ -143,9 +143,39 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
                                     showDialog(
                                       context: context,
                                       builder: (_) => DeleteConfirmationDialog(
-                                        onConfirm: () {
-                                          // TODO: Implement delete functionality
+                                        onConfirm: () async {
                                           Navigator.pop(context);
+
+                                          try {
+                                            await ref
+                                                .read(
+                                                    applicationDeletionProvider
+                                                        .notifier)
+                                                .deleteApplication(
+                                                    application.id);
+
+                                            if (mounted) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      'Application deleted successfully'),
+                                                  backgroundColor: Colors.green,
+                                                ),
+                                              );
+                                            }
+                                          } catch (error) {
+                                            if (mounted) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      'Failed to delete application: ${error.toString()}'),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          }
                                         },
                                         onCancel: () => Navigator.pop(context),
                                       ),
@@ -254,7 +284,8 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
                 children: [
                   const Expanded(
                     child: Header(title: 'Applied Job Status'),
-                  ),                  IconButton(
+                  ),
+                  IconButton(
                     onPressed: () {
                       ref.invalidate(userApplicationsProvider(user.id));
                     },
@@ -293,7 +324,8 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: Colors.red),
                       ),
-                      const SizedBox(height: 16),                      ElevatedButton(
+                      const SizedBox(height: 16),
+                      ElevatedButton(
                         onPressed: () =>
                             ref.invalidate(userApplicationsProvider(user.id)),
                         child: const Text('Retry'),
