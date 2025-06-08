@@ -123,6 +123,46 @@ class DioClient {
     }
   }
 
+  // ✅ Submit a job application
+  Future<void> submitJobApplication(
+      Map<String, dynamic> applicationData) async {
+    try {
+      await dio.post('/apply', data: applicationData);
+    } on DioException catch (error) {
+      throw _handleError(error);
+    }
+  }
+
+  // ✅ Get user's job applications
+  Future<List<Map<String, dynamic>>> getUserApplications(String userId) async {
+    try {
+      final response = await dio.get('/apply/user/$userId');
+      return List<Map<String, dynamic>>.from(response.data);
+    } on DioException catch (error) {
+      throw _handleError(error);
+    }
+  }
+
+  // ✅ Get applications for a specific job (for employers)
+  Future<List<Map<String, dynamic>>> getJobApplications(String jobId) async {
+    try {
+      final response = await dio.get('/apply/job/$jobId');
+      return List<Map<String, dynamic>>.from(response.data);
+    } on DioException catch (error) {
+      throw _handleError(error);
+    }
+  }
+
+  // ✅ Update application status
+  Future<void> updateApplicationStatus(
+      String applicationId, String status) async {
+    try {
+      await dio.patch('/apply/$applicationId/status', data: {'status': status});
+    } on DioException catch (error) {
+      throw _handleError(error);
+    }
+  }
+
   static String get baseUrl => _baseUrl;
 
   static String get wsUrl => _baseUrl

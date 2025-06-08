@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_hire/core/app_theme.dart';
+import 'package:easy_hire/core/models/job_model.dart';
+import 'package:easy_hire/core/provider/application_provider.dart';
+import 'package:easy_hire/core/provider/google_auth_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class JobApplyScreen extends StatefulWidget {
-  const JobApplyScreen({super.key});
+class JobApplyScreen extends ConsumerStatefulWidget {
+  final JobModel job;
+
+  const JobApplyScreen({super.key, required this.job});
 
   @override
-  State<JobApplyScreen> createState() => _JobApplyScreenState();
+  ConsumerState<JobApplyScreen> createState() => _JobApplyScreenState();
 }
 
-class _JobApplyScreenState extends State<JobApplyScreen> {
+class _JobApplyScreenState extends ConsumerState<JobApplyScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -93,7 +99,6 @@ class _JobApplyScreenState extends State<JobApplyScreen> {
               fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87),
         ),
       );
-
   Widget _inputField(String label,
       {required TextEditingController controller, int maxLines = 1}) {
     return Padding(
@@ -115,6 +120,25 @@ class _JobApplyScreenState extends State<JobApplyScreen> {
           TextFormField(
             controller: controller,
             maxLines: maxLines,
+            validator: (value) {
+              if (label == 'Name' && (value == null || value.trim().isEmpty)) {
+                return 'Name is required';
+              }
+              if (label == 'Email') {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Email is required';
+                }
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                    .hasMatch(value.trim())) {
+                  return 'Please enter a valid email';
+                }
+              }
+              if (label == 'Education / Certifications' &&
+                  (value == null || value.trim().isEmpty)) {
+                return 'Education/Certifications is required';
+              }
+              return null;
+            },
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,
@@ -133,26 +157,92 @@ class _JobApplyScreenState extends State<JobApplyScreen> {
   }
 
   Widget _submitButton() {
+    final applicationState = ref.watch(applicationSubmissionProvider);
+
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
-        onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            // TODO: Submit or go to next screen
-          }
-        },
+        onPressed: applicationState.isLoading ? null : _handleSubmit,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryNavyBlue,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
-        child: const Text(
-          'Next',
-          style: TextStyle(
-              fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white),
-        ),
+        child: applicationState.isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  strokeWidth: 2,
+                ),
+              )
+            : const Text(
+                'Submit',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: Colors.white),
+              ),
       ),
     );
+  }
+
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final user = ref.read(googleAuthProvider).value;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please sign in to apply for jobs')),
+      );
+      return;
+    }
+
+    // Prepare application data
+    final applicationData = {
+      'jobId': widget.job.id,
+      'applicantId': user.id,
+      'applicantName': _nameController.text.trim(),
+      'applicantEmail': _emailController.text.trim(),
+      'education': _educationController.text.trim(),
+      'otherRequests': _otherRequestController.text.trim().isEmpty
+          ? null
+          : _otherRequestController.text.trim(),
+      // Job details for display in applications list
+      'jobTitle': widget.job.role,
+      'companyName': widget.job.company,
+      'salary': widget.job.salary,
+      'companyPhotoUrl': widget.job.createdByPhotoUrl,
+      'tags': [widget.job.category, widget.job.workMode]
+          .where((tag) => tag.isNotEmpty)
+          .toList(),
+    };
+
+    try {
+      await ref
+          .read(applicationSubmissionProvider.notifier)
+          .submitApplication(applicationData);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Application submitted successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        context.pop(); // Go back to previous screen
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to submit application: ${error.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

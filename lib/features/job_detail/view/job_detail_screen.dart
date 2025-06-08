@@ -127,7 +127,8 @@ class JobDetailScreen extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              onPressed: () => context.push('/apply-job'),
+                              onPressed: () =>
+                                  context.push('/apply-job', extra: job),
                               child: const Text(
                                 'Apply',
                                 style: TextStyle(

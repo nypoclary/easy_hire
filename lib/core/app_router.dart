@@ -87,7 +87,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/apply-job',
-        builder: (context, state) => const JobApplyScreen(),
+        builder: (context, state) {
+          final job = state.extra as JobModel;
+          return JobApplyScreen(job: job);
+        },
       ),
       GoRoute(
         path: '/create-job',
