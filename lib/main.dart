@@ -1,5 +1,6 @@
 import 'package:easy_hire/core/app_constants.dart';
 import 'package:easy_hire/firebase_options.dart';
+import 'package:easy_hire/services/dio_client.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'core/app_router.dart';
@@ -10,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await DioClient().initialize();
   runApp(const ProviderScope(
     child: EasyHireApp(),
   ));

@@ -5,7 +5,7 @@ class DioClient {
   Dio? _dio;
   bool _isInitialized = false;
 
-  static const String _baseUrl = 'http://10.0.2.2:3000/api/v1';
+  static const String _baseUrl = 'http://192.168.0.102:3000/api/v1';
 
   DioClient._internal();
 
