@@ -26,7 +26,7 @@ final userApplicationsProvider =
 
     // Sort by appliedAt date (newest first)
     applicationList.sort((a, b) => b.appliedAt.compareTo(a.appliedAt));
-    
+
     return applicationList;
   },
 );

@@ -247,7 +247,34 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const Header(title: 'Applied Job Status'),
+            // Header with refresh button
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Header(title: 'Applied Job Status'),
+                  ),                  IconButton(
+                    onPressed: () {
+                      ref.invalidate(userApplicationsProvider(user.id));
+                    },
+                    icon: const Icon(
+                      Icons.refresh,
+                      color: Color(0xFF6B46C1),
+                      size: 24,
+                    ),
+                    tooltip: 'Refresh applications',
+                    style: IconButton.styleFrom(
+                      backgroundColor: const Color(0xFFE8E2FF),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.all(12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: applicationsAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -266,10 +293,9 @@ class _JobStatusScreenState extends ConsumerState<JobStatusScreen> {
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: Colors.red),
                       ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
+                      const SizedBox(height: 16),                      ElevatedButton(
                         onPressed: () =>
-                            ref.refresh(userApplicationsProvider(user.id)),
+                            ref.invalidate(userApplicationsProvider(user.id)),
                         child: const Text('Retry'),
                       ),
                     ],
